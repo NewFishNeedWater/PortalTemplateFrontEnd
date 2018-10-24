@@ -16,7 +16,7 @@ sap.ui.define([
          *         ----{array} filters: filter table
          */
          oModelRead: function(oModel, baseURL, oSettings ){
-             var url = sap.ushell.Container.getHost()+baseURL;
+             var url = baseURL;
              if(this._checkURLWithCondition(oSettings)){
                  url = url + "?";
              }
@@ -51,7 +51,7 @@ sap.ui.define([
         },
 
         getModelReadPromise: function(baseURL, oSettings){
-            var url = sap.ushell.Container.getHost()+baseURL;
+            var url = baseURL;
             if(this._checkURLWithCondition(oSettings)){
                 url = url + "?";
             }

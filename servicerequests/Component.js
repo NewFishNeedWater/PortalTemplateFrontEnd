@@ -50,12 +50,8 @@ sap.ui.define([
                         getEmail: function () {
                             return "joey.yang02@sap.com";
 
-                        },
-
+                        }
                     };
-                },
-                getHost : function(){
-                    return "http://127.0.0.1:4002/client"
                 }
             };
 
@@ -101,11 +97,8 @@ sap.ui.define([
 
             var model = new JSONModel();
             var email = sap.ushell.Container.getUser().getEmail();
-
-            var url = sap.ushell.Container.getHost()+"/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
+            var url ="./getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
                 + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
-
-           // alert(url);
             $.ajax({
                 method: "GET",
                 url: url,
@@ -137,7 +130,7 @@ sap.ui.define([
             	if(this.functionMetaData.ServiceRequestServicePriorityCodeCollection){
             		resolve(this.functionMetaData.ServiceRequestServicePriorityCodeCollection)
 				}
-				this.utilityHandler.getModelReadPromise('/getServicePriorityCode').then(function(oData){
+				this.utilityHandler.getModelReadPromise('./getServicePriorityCode').then(function(oData){
                     this.functionMetaData.ServiceRequestServicePriorityCodeCollection = oData;
                     resolve(this.functionMetaData.ServiceRequestServicePriorityCodeCollection)
                 }.bind(this));
@@ -149,7 +142,7 @@ sap.ui.define([
                 if(this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection){
                     resolve(this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection)
                 }
-                this.utilityHandler.getModelReadPromise('/getServiceCategory').then(function(oData){
+                this.utilityHandler.getModelReadPromise('./getServiceCategory').then(function(oData){
                     this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                     resolve(this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection)
 				}.bind(this));
@@ -161,7 +154,7 @@ sap.ui.define([
                 if(this.functionMetaData.ProductCollection){
                     resolve(this.functionMetaData.ProductCollection)
                 }
-                this.utilityHandler.getModelReadPromise('/getProductCollection?$skip=0&$top=100').then(function(oData){
+                this.utilityHandler.getModelReadPromise('./getProductCollection?$skip=0&$top=100').then(function(oData){
                     this.functionMetaData.ProductCollection = oData;
                     resolve(this.functionMetaData.ProductCollection)
                 }.bind(this));
@@ -173,7 +166,7 @@ sap.ui.define([
                 if(this.functionMetaData.incidentModel){
                     resolve(this.functionMetaData.incidentModel)
                 }
-                this.utilityHandler.getModelReadPromise('/getIncidentCategory').then(function(oData){
+                this.utilityHandler.getModelReadPromise('./getIncidentCategory').then(function(oData){
                     this.functionMetaData.incidentModel = oData;
                     resolve(this.functionMetaData.incidentModel)
                 }.bind(this));

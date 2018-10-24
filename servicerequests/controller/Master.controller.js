@@ -86,7 +86,7 @@ sap.ui.define([
 
 		getC4CContact: function() {
 			var userEmail = sap.ushell.Container.getUser().getEmail(),
-				url =sap.ushell.Container.getHost()+"/client/getC4CContact?userEmail="+userEmail;
+				url ="/client/getC4CContact?userEmail="+userEmail;
 			$.ajax({
 				method: "GET",
 				url: url,
@@ -121,7 +121,7 @@ sap.ui.define([
 				var incidentModel = mockModelData.IncidentModel;
 				this.initIncidentModel(incidentModel[parentObject]);
 			} else {
-                this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
+                this.utilityHandler.oModelRead(oModel, './getServiceCategory', {
                     filters: this.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
                     success: function(oData){
                         _self.initIncidentModel(oData);
@@ -373,7 +373,7 @@ sap.ui.define([
                 ParentObjectID = selectedData.parentObject;
                 TypeCode = selectedData.typeCode;
 
-                this.utilityHandler.oModelRead(serviceRequestModel,'/getIncidentCategory', {
+                this.utilityHandler.oModelRead(serviceRequestModel,'./getIncidentCategory', {
                     filters: this.getOwnerComponent().createIncidentCategoryFilters(ParentObjectID, TypeCode),
                     success: function(oData){
                         that.initIncidentModel(oData);
@@ -556,7 +556,7 @@ sap.ui.define([
 				var model = view.getModel(),
 					url = model.sServiceUrl + "/ServiceRequestCollection",
 					// token = model.getSecurityToken();
-				url = '/postServiceRequests'
+				url = './postServiceRequests'
 				jQuery.ajax({
 					url: url,
 					method: "POST",
@@ -597,7 +597,7 @@ sap.ui.define([
 					// elm = result.getElementsByTagName("id")[0],
 					// baseUrl = elm.innerHTML || elm.textContent,
 					var baseID = result.ObjectID;
-					var url = "/postServiceRequestDescription",
+					var url = "./postServiceRequestDescription",
 					text = sap.ui.getCore().byId("createDescription").getValue();
 					//token = model.getSecurityToken();
 				jQuery.ajax({
@@ -657,7 +657,7 @@ sap.ui.define([
 					Binary: window.btoa(e.target.result),
                     baseID: result.ObjectID
 				};
-                var url = '/postServiceRequestAttachment';
+                var url = './postServiceRequestAttachment';
 				jQuery.ajax({
 					url: url,
 					method: "POST",
