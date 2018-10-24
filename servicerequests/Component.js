@@ -100,6 +100,11 @@ sap.ui.define([
         getServiceRequest : function(){
 
             var model = new JSONModel();
+            this.refreshServiceRequestList(model);
+            //this.setModel(model);
+        },
+
+		refreshServiceRequestList: function(model, fnComplete){
             var email = sap.ushell.Container.getUser().getEmail();
             var url =UtilityHandler.getHost()+"/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
                 + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
@@ -118,17 +123,22 @@ sap.ui.define([
                     }
                     model.setData({"ServiceRequestCollection":result});
                     model.refresh();
-
                 }.bind(this),
                 error: function(jqXHR) {
                     var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
                     var error = elm.innerHTML || elm.textContent;
                     MessageBox.error(error);
-                }
-            });
+                },
+                complete: function() {
+                    if(fnComplete){
+                        fnComplete();
+					}
+                }.bind(this)
 
+            });
             this.setModel(model);
-        },
+		},
+
 		getServiceRequestServicePriorityCodePromise: function(){
             return new Promise(function(resolve, reject) {
             	if(this.functionMetaData.ServiceRequestServicePriorityCodeCollection){

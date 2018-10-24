@@ -83,24 +83,36 @@ sap.ui.define([
             oView.setModel(new JSONModel({results: []}), "IncidentModel");
             this.utilityHandler.oModelRead(oModel, '/getServicePriorityCode', {
                 success: function(oData){
-                    oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
-                    oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                    if(oData && oData.error){
+                        this._onErrorMessageFound(oData.error);
+                    }else{
+                        oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
+                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                    }
+
                 },
                 error: that.onErrorODataRead
             });
 
             this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
                 success: function(oData){
-                    oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
-                    oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-
+                    if(oData && oData.error){
+                        this._onErrorMessageFound(oData.error);
+                    }else{
+                        oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
+                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                    }
                 },
                 error: that.onErrorODataRead
             });
             this.utilityHandler.oModelRead(oModel, '/getProductCollection?$skip=0&$top=100', {
                 success: function(oData){
-                    oServiceRequestData.ProductCollection = oData;
-                    oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                    if(oData && oData.error){
+                        this._onErrorMessageFound(oData.error);
+                    }else{
+                        oServiceRequestData.ProductCollection = oData;
+                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                    }
                 },
                 error: that.onErrorODataRead
             });
@@ -156,7 +168,7 @@ sap.ui.define([
 				text = oEvent.getSource().getValue();
 			if (!this.getOwnerComponent().mockData) {
                 var baseID = this.getModel().getObject(sPath).ObjectID;
-				var url = 'postServiceRequestDescription';
+				var url = UtilityHandler.getHost()+ '/postServiceRequestDescription';
 				//this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
@@ -173,8 +185,10 @@ sap.ui.define([
 						Text: text,
                         baseID: baseID
 					}),
-					success: function() {
-						//this.getModel().refresh();
+					success: function(oData) {
+                        if(oData && oData.error){
+                            this._onErrorMessageFound(oData.error);
+                        }
 						this.loadTicketDetail();
 					}.bind(this),
 					error: function(jqXHR) {
@@ -263,8 +277,12 @@ sap.ui.define([
 					// 	"X-CSRF-TOKEN": token
 					// },
 					data: JSON.stringify(patch),
-					success: function() {
-						MessageToast.show("The service request was updated successfully");
+					success: function(oData) {
+                        if(oData & oData.error){
+                            this._onErrorMessageFound(oData.error);
+                        }else{
+                            MessageToast.show("The service request was updated successfully");
+						}
 						this.getModel().refresh();
 					}.bind(this),
 					error: function(jqXHR) {
@@ -292,7 +310,7 @@ sap.ui.define([
                 method: "GET",
                 contentType: "application/json",
                 success: function(oData) {
-                	if(oData.error){
+                	if(oData && oData.error){
                 		this._onErrorMessageFound(oData.error);
 					}else{
                         model.setProperty(sPath, oData);
@@ -346,8 +364,12 @@ sap.ui.define([
 				// 	"X-CSRF-TOKEN": token
 				// },
 				data: JSON.stringify(patch),
-				success: function() {
-					MessageToast.show("The service request was set to completed");
+				success: function(oData) {
+                    if(oData && oData.error){
+                        this._onErrorMessageFound(oData.error);
+                    }else{
+                        MessageToast.show("The service request was set to completed");
+                    }
 					this.getModel().refresh();
 				}.bind(this),
 				error: function(jqXHR) {
@@ -399,10 +421,14 @@ sap.ui.define([
 					// 	"X-CSRF-TOKEN": token
 					// },
 					data: JSON.stringify(dataMock),
-					success: function() {
+					success: function(oData) {
 						view.byId("fileUploader").clear();
 						this.fileToUpload = null;
-						MessageToast.show("The attachment was uploaded successfully");
+                        if(oData && oData.error){
+                            this._onErrorMessageFound(oData.error);
+                        }else{
+                            MessageToast.show("The attachment was uploaded successfully");
+						}
 						this.getModel().refresh();
 					}.bind(this),
 					error: function(jqXHR) {
@@ -466,7 +492,12 @@ sap.ui.define([
                     this.utilityHandler.oModelRead(oModel, '/getIncidentCategory', {
                         filters: _self.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
                         success: function(oData) {
-                            _self.initIncidentModel(oData);
+                            if(oData && oData.error){
+                                this._onErrorMessageFound(oData.error);
+                            }else{
+                                _self.initIncidentModel(oData);
+                            }
+
                             // oModel.setData(oData);
                             // oModel.refresh();
                         },
@@ -597,14 +628,31 @@ sap.ui.define([
 				});
 			}
 		},
+
+		_getTime: function(rawValue){
+			if(typeof rawValue === 'string'){
+				// In case string type raw date value
+				let regex = new RegExp("^\/Date");
+				if(regex.test(rawValue)){
+					// In case start with '/Date'
+                   return rawValue.slice(6, rawValue.length-1) * 1;
+				}
+			}
+			if(typeof rawValue === 'object'){
+				return rawValue.getTime();
+			}
+		},
+
 		_populateDescriptionsList: function(sPath) {
 			var list = this.getView().byId("descriptionsList");
 			var descriptions = this.getModel().getObject(sPath).ServiceRequestDescription;
+			var that = this;
 
 			list.removeAllItems();
 			if (descriptions.forEach) {
 				descriptions.sort(function(a, b) {
-					return a.CreatedOn.getTime() - b.CreatedOn.getTime();
+					//return a.CreatedOn.getTime() - b.CreatedOn.getTime();
+                    return that._getTime(a.CreatedOn) - that._getTime(b.CreatedOn)
 				});
 				var sender, info, typeCode;
 				descriptions.forEach(function(description) {

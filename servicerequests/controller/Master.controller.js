@@ -86,7 +86,7 @@ sap.ui.define([
 
 		getC4CContact: function() {
 			var userEmail = sap.ushell.Container.getUser().getEmail(),
-				url ="/client/getC4CContact?userEmail="+userEmail;
+				url = UtilityHandler.getHost()+ "/getC4CContact?userEmail="+userEmail;
 			$.ajax({
 				method: "GET",
 				url: url,
@@ -709,9 +709,14 @@ sap.ui.define([
 		},
 
         refreshServiceRequestList: function(){
+            var oListView = this.byId("list");
+            oListView.setBusy(true);
             var model = this.getModel();
             this._oList.removeSelections();
-            this.getOwnerComponent().getServiceRequest();
+            this.getOwnerComponent().refreshServiceRequestList(this.getOwnerComponent().getModel(), function(){
+                var oListView = this.byId("list");
+                oListView.setBusy(false);
+			}.bind(this));
             model.refresh();
         },
 		updateMockItemDetails: function() {
