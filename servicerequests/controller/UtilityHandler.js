@@ -4,7 +4,7 @@ sap.ui.define([
 ], function (UI5Object, FilterOperator) {
     "use strict";
 
-    return UI5Object.extend("ServiceRequests.controller.UtilityHandler", {
+    var UtilityHandler = UI5Object.extend("ServiceRequests.controller.UtilityHandler", {
 
         /**
          * Utility method: Read data from server and render oModel
@@ -16,7 +16,7 @@ sap.ui.define([
          *         ----{array} filters: filter table
          */
          oModelRead: function(oModel, baseURL, oSettings ){
-             var url = baseURL;
+             var url = this.getHost()+ baseURL;
              if(this._checkURLWithCondition(oSettings)){
                  url = url + "?";
              }
@@ -51,7 +51,7 @@ sap.ui.define([
         },
 
         getModelReadPromise: function(baseURL, oSettings){
-            var url = baseURL;
+            var url = this.getHost()+ baseURL;
             if(this._checkURLWithCondition(oSettings)){
                 url = url + "?";
             }
@@ -110,6 +110,18 @@ sap.ui.define([
              return baseURL + str;
          },
 
+        getHost : function(){
+            return "http://127.0.0.1:4002/client";
+        }
+
     });
+
+    //TODO change id to SCP destination
+    UtilityHandler.getHost = function(){
+
+        return "http://127.0.0.1:4002/client";
+    };
+
+    return UtilityHandler;
 });
 

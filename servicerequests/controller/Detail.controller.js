@@ -81,7 +81,7 @@ sap.ui.define([
 			var oServiceRequestData = {};
             var oModel = new JSONModel();
             oView.setModel(new JSONModel({results: []}), "IncidentModel");
-            this.utilityHandler.oModelRead(oModel, './getServicePriorityCode', {
+            this.utilityHandler.oModelRead(oModel, '/getServicePriorityCode', {
                 success: function(oData){
                     oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
@@ -89,7 +89,7 @@ sap.ui.define([
                 error: that.onErrorODataRead
             });
 
-            this.utilityHandler.oModelRead(oModel, './getServiceCategory', {
+            this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
                 success: function(oData){
                     oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
@@ -97,7 +97,7 @@ sap.ui.define([
                 },
                 error: that.onErrorODataRead
             });
-            this.utilityHandler.oModelRead(oModel, './getProductCollection?$skip=0&$top=100', {
+            this.utilityHandler.oModelRead(oModel, '/getProductCollection?$skip=0&$top=100', {
                 success: function(oData){
                     oServiceRequestData.ProductCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
@@ -156,7 +156,7 @@ sap.ui.define([
 				text = oEvent.getSource().getValue();
 			if (!this.getOwnerComponent().mockData) {
                 var baseID = this.getModel().getObject(sPath).ObjectID;
-				var url = './postServiceRequestDescription';
+				var url = 'postServiceRequestDescription';
 				//this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
@@ -253,7 +253,7 @@ sap.ui.define([
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
 				// var sPath = view.getElementBinding().getPath(),
-				var url = './patchServiceRequests';
+				var url = UtilityHandler.getHost()+'/patchServiceRequests';
 				// token = model.getSecurityToken();
 				jQuery.ajax({
 					url: url,
@@ -286,7 +286,7 @@ sap.ui.define([
                 sPath = view.getElementBinding().getPath(),
                 model = view.getModel();
             var baseID = this.getModel().getObject(sPath).ObjectID;
-            var url = './getServiceRequests?&ObjectID=\'' + baseID + '\'&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder';
+            var url = UtilityHandler.getHost()+'/getServiceRequests?&ObjectID=\'' + baseID + '\'&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder';
             jQuery.ajax({
                 url: url,
                 method: "GET",
@@ -334,7 +334,7 @@ sap.ui.define([
             var detailView = this.getModel("detailView");
             detailView.setProperty("/busy", true);
 			var sPath = oView.getElementBinding().getPath(),
-				url = './patchServiceRequests'
+				url = UtilityHandler.getHost()+'/patchServiceRequests'
 
             patch.baseID = this.getModel().getObject(sPath).ObjectID;
 
@@ -383,7 +383,7 @@ sap.ui.define([
 				sPath = view.getElementBinding().getPath();
 
 			if (!this.getOwnerComponent().mockData) {
-                var url = './postServiceRequestAttachment', //model.sServiceUrl + sPath + "/ServiceRequestAttachmentFolder",
+                var url = UtilityHandler.getHost()+'/postServiceRequestAttachment', //model.sServiceUrl + sPath + "/ServiceRequestAttachmentFolder",
 					//token = model.getSecurityToken();
                 baseID = this.getModel().getObject(sPath).ObjectID;
 				var dataMock = {
@@ -463,7 +463,7 @@ sap.ui.define([
                     this.initIncidentModel(incidentModel[parentObject]);
                 } else {
 
-                    this.utilityHandler.oModelRead(oModel, './getIncidentCategory', {
+                    this.utilityHandler.oModelRead(oModel, '/getIncidentCategory', {
                         filters: _self.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
                         success: function(oData) {
                             _self.initIncidentModel(oData);
