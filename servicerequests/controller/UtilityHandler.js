@@ -119,7 +119,8 @@ sap.ui.define([
     //TODO change id to SCP destination
     UtilityHandler.getHost = function(){
 
-        return "http://127.0.0.1:4002/client";
+        //return "http://127.0.0.1:4002/client";
+        return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
     return UtilityHandler;
