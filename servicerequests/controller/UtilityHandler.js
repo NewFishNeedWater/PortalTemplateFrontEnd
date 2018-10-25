@@ -122,6 +122,23 @@ sap.ui.define([
         // return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
+    UtilityHandler.getDate = function(rawValue){
+        if(typeof rawValue === 'string'){
+            // In case string type raw date value
+            let regex = new RegExp("^\/Date");
+            if(regex.test(rawValue)){
+                // In case start with '/Date'
+                var date = new Date(rawValue.slice(6, rawValue.length-2) * 1);
+                console.log('Current Date:' + date);
+                return date;
+
+            }
+        }
+        if(typeof rawValue === 'object' && rawValue instanceof Date){
+            return rawValue;
+        }
+    },
+
     /**
      * @public: Utility method, converting response from server to error message
      * @param jqXHR

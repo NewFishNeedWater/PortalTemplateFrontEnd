@@ -642,20 +642,6 @@ sap.ui.define([
 			}
 		},
 
-		_getTime: function(rawValue){
-			if(typeof rawValue === 'string'){
-				// In case string type raw date value
-				let regex = new RegExp("^\/Date");
-				if(regex.test(rawValue)){
-					// In case start with '/Date'
-                   return rawValue.slice(6, rawValue.length-1) * 1;
-				}
-			}
-			if(typeof rawValue === 'object'){
-				return rawValue.getTime();
-			}
-		},
-
 		_populateDescriptionsList: function(sPath) {
 			var list = this.getView().byId("descriptionsList");
 			var descriptions = this.getModel().getObject(sPath).ServiceRequestDescription;
@@ -665,10 +651,11 @@ sap.ui.define([
 			if (descriptions.forEach) {
 				descriptions.sort(function(a, b) {
 					//return a.CreatedOn.getTime() - b.CreatedOn.getTime();
-                    return that._getTime(a.CreatedOn) - that._getTime(b.CreatedOn)
+                    return UtilityHandler.getDate(a.CreatedOn).getTime() - UtilityHandler.getDate(b.CreatedOn).getTime()
 				});
 				var sender, info, typeCode;
 				descriptions.forEach(function(description) {
+                    description.CreatedOn = UtilityHandler.getDate(description.CreatedOn);
 					typeCode = description.TypeCode;
 					if (typeCode === "10004") {
 						sender = description.AuthorName;
