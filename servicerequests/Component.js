@@ -45,7 +45,6 @@ sap.ui.define([
 
 		    //TODO remove it when deploy to SCP
             sap.ushell.Container = {
-
                 getUser: function () {
 
                     return {
@@ -56,8 +55,6 @@ sap.ui.define([
                     };
                 },
             };
-
-
 
             this.utilityHandler = new UtilityHandler();
             // Initial function metadata from back-end.
@@ -227,7 +224,8 @@ sap.ui.define([
 		destroy: function() {
 			this.oListSelector.destroy();
 			if (!this.mockData) {
-				this._oErrorHandler.destroy();
+			    //TODO we need error handler
+				//this._oErrorHandler.destroy();
 			}
 			// call the base component's destroy function
 			UIComponent.prototype.destroy.apply(this, arguments);

@@ -16,11 +16,11 @@
 		},
 		"description": "SAPUI5 Test Resources"
 	}, {
-		"path": "/destinations/c4c",
+		"path": "/destinations/supportportal",
 		"target": {
 			"type": "destination",
-			"name": "c4c"
+			"name": "supportportal"
 		},
-		"description": "C4C my312033"
+		"description": "node.js back end"
 	}]
 }

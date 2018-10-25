@@ -111,7 +111,10 @@ sap.ui.define([
          },
 
         getHost : function(){
-            return "http://127.0.0.1:4002/client";
+            //this is destinations which is configed in SCP
+            return jQuery.sap.getModulePath("ServiceRequests") +
+                "/destinations/supportportal/client";
+            // "https://supportportal.cfapps.us10.hana.ondemand.com/client";
         }
 
     });
@@ -119,8 +122,11 @@ sap.ui.define([
     //TODO change id to SCP destination
     UtilityHandler.getHost = function(){
 
+        //this is destinations which is configed in SCP
         //return "http://127.0.0.1:4002/client";
-        return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
+        //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
+        return jQuery.sap.getModulePath("ServiceRequests") +
+            "/destinations/supportportal/client";
     };
 
     return UtilityHandler;
