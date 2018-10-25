@@ -1,6 +1,8 @@
 sap.ui.define([
-	"sap/ui/core/mvc/Controller"
-], function(Controller) {
+	"sap/ui/core/mvc/Controller",
+	"ServiceRequests/controller/UtilityHandler"
+],
+function (Controller, UtilityHandler) {
 	"use strict";
 	/*global $*/
 
@@ -19,11 +21,14 @@ sap.ui.define([
 				$("#pendingResponseTileNumber").text("0");
 			} else {
 				var email = sap.ushell.Container.getUser().getEmail();
+				var url = UtilityHandler.getHost() + "/getServiceRequestsCount?$filter=ReporterEmail eq %27" + email + "%27and ServiceRequestUserLifeCycleStatusCode eq %274%27";
+
 				$.ajax({
 					method: "GET",
-					url: "/sap/fiori/servicerequests/destinations/c4c/sap/byd/odata/v1/c4codata/ServiceRequestCollection/$count?$filter=ReporterEmail eq %27" + email + "%27and ServiceRequestUserLifeCycleStatusCode eq %274%27",
+					// url: "/sap/fiori/servicerequests/destinations/c4c/sap/byd/odata/v1/c4codata/ServiceRequestCollection/$count?$filter=ReporterEmail eq %27" + email + "%27and ServiceRequestUserLifeCycleStatusCode eq %274%27",
+					url: url,
 					success: function(result) {
-						$("#pendingResponseTileNumber").text(result);
+						$("#pendingResponseTileNumber").text(result.count);
 					},
 					error: function() {
 						$("#pendingResponseTileNumber").text("!");
