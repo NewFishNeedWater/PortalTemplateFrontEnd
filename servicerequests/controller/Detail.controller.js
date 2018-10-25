@@ -132,8 +132,10 @@ sap.ui.define([
 			oView.byId("infoServiceCategorySelect").setSelectedKey(selectedKey);
 		},
 		onErrorODataRead: function(jqXHR) {
-			var error = jqXHR.responseJSON.error.message.value;
-			MessageBox.error(error);
+            var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+            if(errorMessage){
+                MessageBox.error(errorMessage);
+            }
 		},
 		infoPriorityReceived: function(oData) {
 			var hiddenPriorityCodes = this.getOwnerComponent().getManifest()['sap.cloud.portal'].settings.hiddenPriorityCodes,
@@ -192,8 +194,9 @@ sap.ui.define([
 						this.loadTicketDetail();
 					}.bind(this),
 					error: function(jqXHR) {
-						//var error = jqXHR.responseJSON.error.message.value;
-						MessageBox.error('error');
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        var error = errorMessage?errorMessage:'Data save failure!';
+						MessageBox.error(error);
 					},
 					complete: function() {
 						this.app.setBusy(false);
@@ -278,7 +281,7 @@ sap.ui.define([
 					// },
 					data: JSON.stringify(patch),
 					success: function(oData) {
-                        if(oData & oData.error){
+                        if(oData && oData.error){
                             this._onErrorMessageFound(oData.error);
                         }else{
                             MessageToast.show("The service request was updated successfully");
@@ -286,9 +289,11 @@ sap.ui.define([
 						this.getModel().refresh();
 					}.bind(this),
 					error: function(jqXHR) {
-						var elm = jqXHR.responseText.getElementsByTagName("message")[0];
-						var error = elm.innerHTML || elm.textContent;
-						MessageBox.error(error);
+						// var elm = jqXHR.responseText.getElementsByTagName("message")[0];
+						// var error = elm.innerHTML || elm.textContent;
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        var error = errorMessage?errorMessage:'Data save failure!';
+						MessageBox.error(errorMessage);
 					},
 					complete: function() {
 						// this.app.setBusy(false);
@@ -298,6 +303,8 @@ sap.ui.define([
 				});
 			}
 		},
+
+
 
 		loadTicketDetail:function(){
             var view = this.getView(),
@@ -321,9 +328,12 @@ sap.ui.define([
 					}
                 }.bind(this),
                 error: function(jqXHR) {
-                    var elm = jqXHR.responseText.getElementsByTagName("message")[0];
-                    var error = elm.innerHTML || elm.textContent;
-                    MessageBox.error(error);
+                    // var elm = jqXHR.responseText.getElementsByTagName("message")[0];
+                    // var error = elm.innerHTML || elm.textContent;
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    if(errorMessage){
+                        MessageBox.error(errorMessage);
+                    }
                 },
                 complete: function() {
                     //this.app.setBusy(false);
@@ -373,8 +383,8 @@ sap.ui.define([
 					this.getModel().refresh();
 				}.bind(this),
 				error: function(jqXHR) {
-					var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-					var error = elm.innerHTML || elm.textContent;
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    var error = errorMessage?errorMessage:'Data save failure!';
 					MessageBox.error(error);
 				},
 				complete: function() {
@@ -432,11 +442,12 @@ sap.ui.define([
 						this.getModel().refresh();
 					}.bind(this),
 					error: function(jqXHR) {
-                        var error = 'the attachment could not be uploaded';
-						if( jqXHR.responseXML && jqXHR.responseXML.getElementsByTagName("message") ){
-                            var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-                            error = elm.innerHTML || elm.textContent;
-						}
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        var error = errorMessage ? errorMessage : 'the attachment could not be uploaded';
+                        // if( jqXHR.responseXML && jqXHR.responseXML.getElementsByTagName("message") ){
+                         //    var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
+                         //    error = elm.innerHTML || elm.textContent;
+						// }
 						MessageBox.error(error);
 					},
 					complete: function() {
@@ -466,8 +477,10 @@ sap.ui.define([
 			oView.byId("infoIncidentCategorySelect").setBusy(false);
 		},
 		onErrorIncidentModel: function(jqXHR) {
-			var error = jqXHR.responseJSON.error.message.value;
-			MessageBox.error(error);
+            var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+            if(errorMessage){
+                MessageBox.error(errorMessage);
+            }
 			this.getView().byId("infoIncidentCategorySelect").setBusy(false);
 		},
 		getIncidentCategoryList: function() {

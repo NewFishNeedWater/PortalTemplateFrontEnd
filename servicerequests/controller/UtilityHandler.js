@@ -27,7 +27,6 @@ sap.ui.define([
             $.ajax({
                 url:url,
                 type:'GET',
-                async:false,
                 beforeSend: function(request) {
                     //request.setRequestHeader("Authorization", chatbotAPI.nlAPIToken);
                     request.setRequestHeader("Type", "application/json");
@@ -122,12 +121,41 @@ sap.ui.define([
     //TODO change id to SCP destination
     UtilityHandler.getHost = function(){
 
-        //this is destinations which is configed in SCP
         //return "http://127.0.0.1:4002/client";
-        //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
-        return jQuery.sap.getModulePath("ServiceRequests") +
-            "/destinations/supportportal/client";
+        return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
+
+    /**
+     * @public: Utility method, converting response from server to error message
+     * @param jqXHR
+     * @returns {string} error message
+     *
+     */
+    UtilityHandler.getErrorMessageFromErrorResponse = function(jqXHR){
+        var  errorUnion;
+        if(jqXHR && jqXHR.responseText && jqXHR.responseText.getElementsByTagName("message")){
+            errorUnion = jqXHR.responseText.getElementsByTagName("message");
+            if(typeof errorUnion === 'string'){
+                return errorUnion;
+            }
+            if(typeof errorUnion === 'object' && errorUnion.length && errorUnion.length> 0){
+                return errorUnion[0];
+            }
+        }
+        if(jqXHR.error && typeof jqXHR.error === 'string'){
+            return jqXHR.error;
+        }
+        if(jqXHR.error && typeof jqXHR.error === 'object'){
+            if(jqXHR.error.message && typeof jqXHR.error.message === 'string'){
+                return jqXHR.error.message;
+            }
+            if(jqXHR.error.message && typeof jqXHR.error.message === 'object'){
+                if(jqXHR.error.message.value && typeof jqXHR.error.message.value === 'string'){
+                    return jqXHR.error.message.value;
+                }
+            }
+        }
+    }
 
     return UtilityHandler;
 });
