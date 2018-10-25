@@ -98,8 +98,10 @@ sap.ui.define([
                 view.byId("downloadButton").setEnabled(true);
             }.bind(this),
 				error: function(jqXHR) {
-					var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-					var error = elm.innerHTML || elm.textContent;
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    var error = errorMessage?errorMessage:'Can not retrieve users email:' + userEmail;
+					// var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
+					// var error = elm.innerHTML || elm.textContent;
 					MessageBox.error(error);
 				}
 			});
@@ -128,7 +130,10 @@ sap.ui.define([
 					},
                     error: function(jqXHR) {
                         // var error = jqXHR.responseJSON.error.message.value;
-                        MessageBox.error(error);
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        if(errorMessage){
+                            MessageBox.error(errorMessage);
+						}
                         sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
                     }
                 });
@@ -392,8 +397,10 @@ sap.ui.define([
 		},
 
 		onIncidentFailed: function(jqXHR) {
-			var error = jqXHR.responseJSON.error.message.value;
-			MessageBox.error(error);
+            var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+            if(errorMessage){
+                MessageBox.error(errorMessage);
+			}
 			this.getView().byId("createIncidentCategory").setBusy(false);
 
 		},
@@ -553,10 +560,10 @@ sap.ui.define([
 
 			this.oDialog.setBusy(true);
 			if (!this.mockData) {
-				var model = view.getModel(),
-					url = model.sServiceUrl + "/ServiceRequestCollection",
+				var model = view.getModel();
+				//url = UtilityHandler.getHost() + "/ServiceRequestCollection",
 					// token = model.getSecurityToken();
-				url = UtilityHandler.getHost()+'/postServiceRequests'
+				var url = UtilityHandler.getHost()+'/postServiceRequests';
 				jQuery.ajax({
 					url: url,
 					method: "POST",
@@ -567,8 +574,8 @@ sap.ui.define([
 					data: JSON.stringify(data),
 					success: this.setTicketDescription.bind(this),
 					error: function(jqXHR) {
-						var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-						var error = elm.innerHTML || elm.textContent;
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        var error = errorMessage?errorMessage:'Data can not be created!';
 						MessageBox.error(error);
 						this.oDialog.setBusy(false);
 					}.bind(this)
@@ -616,8 +623,10 @@ sap.ui.define([
 						this.uploadAttachment(result);
 					}.bind(this),
 					error: function(jqXHR) {
-						var error = jqXHR.responseJSON.error.message.value;
-						MessageBox.error("The service request was created successfully, but a description could not be set: " + error);
+                        var error = "The service request was created successfully, but a description could not be set";
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        error = errorMessage? error + ":" + errorMessage:error;
+						MessageBox.error(error);
 						this.oDialog.setBusy(false);
 					}
 				});
@@ -669,10 +678,12 @@ sap.ui.define([
 					success: this.finishCreateTicket.bind(this),
 					error: function(jqXHR) {
                         var error = 'The service request was created successfully, but the attachment could not be uploaded';
-                        if( jqXHR.responseXML && jqXHR.responseXML.getElementsByTagName("message") ){
-                            var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-                            error = "The service request was created successfully, but the attachment could not be uploaded: " + elm.innerHTML || elm.textContent;
-                        }
+                        // if( jqXHR.responseXML && jqXHR.responseXML.getElementsByTagName("message") ){
+                        //     var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
+                        //     error = "The service request was created successfully, but the attachment could not be uploaded: " + elm.innerHTML || elm.textContent;
+                        // }
+                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                        var error = errorMessage?errorMessage:error;
 						MessageBox.error(error);
 						this.oDialog.setBusy(false);
 					}

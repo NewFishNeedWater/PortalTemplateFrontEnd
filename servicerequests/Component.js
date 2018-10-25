@@ -125,8 +125,8 @@ sap.ui.define([
                     model.refresh();
                 }.bind(this),
                 error: function(jqXHR) {
-                    var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-                    var error = elm.innerHTML || elm.textContent;
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    var error = errorMessage?errorMessage:'Service requests list can not be retrieved!';
                     MessageBox.error(error);
                 },
                 complete: function() {
