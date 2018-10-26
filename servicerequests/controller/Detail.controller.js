@@ -21,6 +21,7 @@ sap.ui.define([
 		formatter: formatter,
 		app: null,
 		fileToUpload: null,
+		max_fileSize: 2000000, // Max upload file size: 2MB
 		/* =========================================================== */
 		/* lifecycle methods                                           */
 		/* =========================================================== */
@@ -59,6 +60,7 @@ sap.ui.define([
 			} else {
                 this._onMetadataLoaded();
                 this._initMetaData();
+                this.getIncidentCategoryList();
 			}
 			var URLS = this.getOwnerComponent().SELECT_BOX_URLS;
 			this.app = this.getOwnerComponent().getAggregation("rootControl");
@@ -89,8 +91,7 @@ sap.ui.define([
                         oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
                         oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
                     }
-
-                },
+                }.bind(this),
                 error: that.onErrorODataRead
             });
 
@@ -101,8 +102,9 @@ sap.ui.define([
                     }else{
                         oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                         oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                        this.getIncidentCategoryList();
                     }
-                },
+                }.bind(this),
                 error: that.onErrorODataRead
             });
             this.utilityHandler.oModelRead(oModel, '/getProductCollection?$skip=0&$top=100', {
@@ -113,7 +115,7 @@ sap.ui.define([
                         oServiceRequestData.ProductCollection = oData;
                         oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
                     }
-                },
+                }.bind(this),
                 error: that.onErrorODataRead
             });
 		},
@@ -220,6 +222,7 @@ sap.ui.define([
 		onAttachmentPress: function(oEvent) {
 			var item = oEvent.getParameter("listItem");
 			var link = document.createElement("a");
+			link.target = "_blank";
 			if (item.data("uri").fileBlob) {
 				link.href = URL.createObjectURL(item.data("uri").fileBlob);
 				link.download = item.data("uri").Name;
@@ -399,6 +402,11 @@ sap.ui.define([
 		},
 		onFileUpload: function() {
 			if (this.fileToUpload) {
+				if(this.fileToUpload.size > this.max_fileSize){
+                    MessageBox.show("File Size is greater than " + this.max_fileSize/1000000 + " MB!");
+                    this.fileToUpload = null;
+					return;
+				}
 				//this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
@@ -501,7 +509,6 @@ sap.ui.define([
                     var incidentModel = mockModelData.ServiceRequest.IncidentModel;
                     this.initIncidentModel(incidentModel[parentObject]);
                 } else {
-
                     this.utilityHandler.oModelRead(oModel, '/getIncidentCategory', {
                         filters: _self.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
                         success: function(oData) {
@@ -509,11 +516,10 @@ sap.ui.define([
                                 this._onErrorMessageFound(oData.error);
                             }else{
                                 _self.initIncidentModel(oData);
+                                // Set the selected value if meta data is loaded successfully
+                                _self.selectInfoService();
                             }
-
-                            // oModel.setData(oData);
-                            // oModel.refresh();
-                        },
+                        }.bind(this),
                         error: _self.onErrorIncidentModel.bind(_self)
                     });
 			}
@@ -684,14 +690,21 @@ sap.ui.define([
 			var oView = this.getView();
 			var list = oView.byId("attachmentsList");
 			var attachments = this.getModel().getObject(sPath).ServiceRequestAttachmentFolder;
+            for (var j = 0; j < attachments.length; j++) {
+            	var createdOn = UtilityHandler.getDate(attachments[j].CreatedOn);
+            	if(createdOn && createdOn instanceof Date){
+                    attachments[j].CreatedOn = createdOn.toLocaleString();
+				}
+            }
 			var attachmentModel = new JSONModel(attachments);
 			oView.setModel(attachmentModel, "AttachmentModel");
 			oView.getModel("AttachmentModel").refresh();
 			var listItems = list.getItems(),
 				mockData = this.getOwnerComponent().mockData;
-		/*	for (var i = 0; i < listItems.length; i++) {
-				listItems[i].data("uri", mockData ? (attachments[i].__metadata ? attachments[i].__metadata.uri + "/Binary/$value" : attachments[i]) : attachments[i].__metadata.uri + "/Binary/$value");
-			}*/
+		    for (var i = 0; i < listItems.length; i++) {
+				//listItems[i].data("uri", mockData ? (attachments[i].__metadata ? attachments[i].__metadata.uri + "/Binary/$value" : attachments[i]) : attachments[i].__metadata.uri + "/Binary/$value");
+                listItems[i].data("uri", attachments[i].DocumentLink);
+			}
 			this.app.setBusy(false);
 		},
 		_onMetadataLoaded: function() {

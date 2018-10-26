@@ -16,7 +16,7 @@ sap.ui.define([
          *         ----{array} filters: filter table
          */
          oModelRead: function(oModel, baseURL, oSettings ){
-             var url = this.getHost()+ baseURL;
+             var url = UtilityHandler.getHost()+ baseURL;
              if(this._checkURLWithCondition(oSettings)){
                  url = url + "?";
              }
@@ -50,7 +50,7 @@ sap.ui.define([
         },
 
         getModelReadPromise: function(baseURL, oSettings){
-            var url = this.getHost()+ baseURL;
+            var url = UtilityHandler.getHost()+ baseURL;
             if(this._checkURLWithCondition(oSettings)){
                 url = url + "?";
             }
@@ -109,20 +109,13 @@ sap.ui.define([
              return baseURL + str;
          },
 
-        getHost : function(){
-            //this is destinations which is configed in SCP
-            return jQuery.sap.getModulePath("ServiceRequests") +
-                "/destinations/supportportal/client";
-            // "https://supportportal.cfapps.us10.hana.ondemand.com/client";
-        }
-
     });
 
     //TODO change id to SCP destination
     UtilityHandler.getHost = function(){
 
-        //return "http://127.0.0.1:4002/client";
-        return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
+        return "http://127.0.0.1:4002/client";
+        //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
     UtilityHandler.getDate = function(rawValue){

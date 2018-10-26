@@ -906,6 +906,18 @@ sap.ui.define([
                     view.byId("downloadButton").setEnabled(true);
                     this.app.setBusy(false);
 				}.bind(this)
+			).catch(
+				function(mParams){
+                    if (mParams.error) {
+                        return;
+                    }
+                    // In case no data found in list.
+                    this.getRouter().getTargets().display("detailNoObjectsAvailable");
+                    var view = this.getView();
+                    view.byId("addButton").setEnabled(true);
+                    view.byId("downloadButton").setEnabled(true);
+                    this.app.setBusy(false);
+				}.bind(this)
 			);
 		},
 
