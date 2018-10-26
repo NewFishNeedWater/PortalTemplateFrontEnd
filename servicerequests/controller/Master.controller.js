@@ -10,7 +10,7 @@ sap.ui.define([
 	"sap/m/MessageBox",
 	"sap/m/MessageToast",
 	"ServiceRequests/model/formatter",
-    "ServiceRequests/controller/UtilityHandler",
+    "ServiceRequests/controller/UtilityHandler"
 ], function(BaseController, JSONModel, Filter, FilterOperator, Device, Export, ExportTypeCSV, GroupHeaderListItem, MessageBox, MessageToast, formatter, UtilityHandler) {
 	"use strict";
 	/*global $*/
@@ -102,7 +102,7 @@ sap.ui.define([
                 var error = errorMessage?errorMessage:'Can not retrieve users email:' + sUserEmail;
                 MessageBox.error(error);
             };
-			UtilityHandler.getC4CContact(fnSuccess,fnError);
+			UtilityHandler.getC4CContact(fnSuccess,fnError,sUserEmail);
 		},
 
 		onServiceCategorySelectCreateFragment: function() {

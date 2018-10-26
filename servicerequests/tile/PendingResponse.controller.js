@@ -1,8 +1,9 @@
 sap.ui.define([
 	"sap/ui/core/mvc/Controller",
-	"ServiceRequests/controller/UtilityHandler"
+        "sap/m/MessageToast",
+        "ServiceRequests/tile/UtilityHandlerTile"
 ],
-function (Controller, UtilityHandler) {
+function (Controller,MessageToast, UtilityHandler) {
 	"use strict";
 	/*global $*/
 
@@ -25,7 +26,7 @@ function (Controller, UtilityHandler) {
                 var fnError = function(jqXHR){
                     MessageToast.show("Retrieve contact by Email error , Email: " + userEmail ,{Duration:5000});
                 };
-                UtilityHandler.getC4CContact(fnSuccess,fnError);
+                UtilityHandler.getC4CContact(fnSuccess,fnError,sUserEmail);
             }.bind(this));
 
 			if (window.location.href.indexOf("mockData") !== -1 || sap.ushell.Container.getUser().getEmail() === "") {

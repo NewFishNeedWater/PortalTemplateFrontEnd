@@ -5,9 +5,9 @@ sap.ui.define([
 	"sap/ui/model/json/JSONModel",
 	"ServiceRequests/model/models",
 	"ServiceRequests/controller/ListSelector",
-	"ServiceRequests/controller/ErrorHandler",
     "ServiceRequests/controller/UtilityHandler",
-], function(UIComponent, Device, ODataModel, JSONModel, models, ListSelector, ErrorHandler, UtilityHandler) {
+    "ServiceRequests/controller/ErrorHandler"
+], function(UIComponent, Device, ODataModel, JSONModel, models, ListSelector,UtilityHandler ,ErrorHandler ) {
 	"use strict";
 
 	return UIComponent.extend("ServiceRequests.Component", {

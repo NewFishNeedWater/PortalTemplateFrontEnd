@@ -109,13 +109,12 @@ sap.ui.define([
             return baseURL + str;
         },
     });
-
     //TODO change id to SCP destination
     UtilityHandler.getHost = function () {
 
         //for local test
-        return "http://127.0.0.1:4002/client";
-        //return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
+        //return "http://127.0.0.1:4002/client";
+        return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
         //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
@@ -135,10 +134,10 @@ sap.ui.define([
             return rawValue;
         }
     };
-    UtilityHandler.getC4CContact = function (fnSuccess, fnError) {
 
-        var userEmail = sap.ushell.Container.getUser().getEmail(),
-            url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + userEmail;
+    UtilityHandler.getC4CContact = function (fnSuccess, fnError, sUserEmail) {
+
+        var url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + sUserEmail;
         $.ajax({
             method: "GET",
             url: url,
