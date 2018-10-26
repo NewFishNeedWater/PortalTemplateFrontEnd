@@ -85,27 +85,26 @@ sap.ui.define([
 		},
 
 		getC4CContact: function() {
-			var userEmail = sap.ushell.Container.getUser().getEmail(),
-				url = UtilityHandler.getHost()+ "/getC4CContact?userEmail="+userEmail;
-			$.ajax({
-				method: "GET",
-				url: url,
-				success: function(result) {
-                this.contactID = result[0].ContactID;
-                this.component.contactUUID = result[0].UUID;
-                var view = this.getView();
-                view.byId("addButton").setEnabled(true);
-                view.byId("downloadButton").setEnabled(true);
-            }.bind(this),
-				error: function(jqXHR) {
-                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                    var error = errorMessage?errorMessage:'Can not retrieve users email:' + userEmail;
-					// var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-					// var error = elm.innerHTML || elm.textContent;
-					MessageBox.error(error);
-				}
-			});
+            var sUserEmail = sap.ushell.Container.getUser().getEmail();
+            var fnSuccess = function(result){
+                if(result){
+                    this.contactID = result[0].ContactID;
+                    this.component.contactUUID = result[0].UUID;
+                    var view = this.getView();
+                    view.byId("addButton").setEnabled(true);
+                    view.byId("downloadButton").setEnabled(true);
+                }else{
+                    MessageToast.show("You cannot view or create tickets because your email " + sUserEmail + " is not assigned to a contact in the C4C tenant",{Duration:5000});
+                }
+            }.bind(this);
+            var fnError = function(jqXHR){
+                var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                var error = errorMessage?errorMessage:'Can not retrieve users email:' + sUserEmail;
+                MessageBox.error(error);
+            };
+			UtilityHandler.getC4CContact(fnSuccess,fnError);
 		},
+
 		onServiceCategorySelectCreateFragment: function() {
 			this.getIncidentCategoryList();
 		},
@@ -901,9 +900,6 @@ sap.ui.define([
 					}
 					// In case no data found in list.
 					this.getRouter().getTargets().display("detailNoObjectsAvailable");
-                    var view = this.getView();
-                    view.byId("addButton").setEnabled(true);
-                    view.byId("downloadButton").setEnabled(true);
                     this.app.setBusy(false);
 				}.bind(this)
 			).catch(
@@ -913,9 +909,6 @@ sap.ui.define([
                     }
                     // In case no data found in list.
                     this.getRouter().getTargets().display("detailNoObjectsAvailable");
-                    var view = this.getView();
-                    view.byId("addButton").setEnabled(true);
-                    view.byId("downloadButton").setEnabled(true);
                     this.app.setBusy(false);
 				}.bind(this)
 			);

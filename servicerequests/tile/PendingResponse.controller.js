@@ -9,13 +9,24 @@ function (Controller, UtilityHandler) {
 	return Controller.extend("ServiceRequests.tile.PendingResponse", {
 
 		onAfterRendering: function() {
+            var sUserEmail = sap.ushell.Container.getUser().getEmail();
 			$("#pendingResponseTile").click(function() {
-				var oViewData = this.getView().getViewData();
-				var navTargetUrl = oViewData.properties && oViewData.properties.navigation_target_url;
-				if (navTargetUrl) {
-					window.hasher.setHash(navTargetUrl);
-				}
-			}.bind(this));
+                var fnSuccess = function(result){
+                    if(!result){
+                        MessageToast.show("You cannot view or create tickets because your email " + sUserEmail + " is not assigned to a contact in the C4C tenant",{Duration:5000});
+                    }else{
+                        var oViewData = this.getView().getViewData();
+                        var navTargetUrl = oViewData.properties && oViewData.properties.navigation_target_url;
+                        if (navTargetUrl) {
+                            window.hasher.setHash(navTargetUrl);
+                        }
+                    }
+                };
+                var fnError = function(jqXHR){
+                    MessageToast.show("Retrieve contact by Email error , Email: " + userEmail ,{Duration:5000});
+                };
+                UtilityHandler.getC4CContact(fnSuccess,fnError);
+            }.bind(this));
 
 			if (window.location.href.indexOf("mockData") !== -1 || sap.ushell.Container.getUser().getEmail() === "") {
 				$("#pendingResponseTileNumber").text("0");

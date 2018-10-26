@@ -15,65 +15,65 @@ sap.ui.define([
          *         ----{function} error: error call back method
          *         ----{array} filters: filter table
          */
-         oModelRead: function(oModel, baseURL, oSettings ){
-             var url = UtilityHandler.getHost()+ baseURL;
-             if(this._checkURLWithCondition(oSettings)){
-                 url = url + "?";
-             }
-            if(oSettings && oSettings.filters){
-                 // In case need to add filter conditions
-                 url = this._setURLByFilters(url, oSettings.filters);
-             }
+        oModelRead: function (oModel, baseURL, oSettings) {
+            var url = UtilityHandler.getHost() + baseURL;
+            if (this._checkURLWithCondition(oSettings)) {
+                url = url + "?";
+            }
+            if (oSettings && oSettings.filters) {
+                // In case need to add filter conditions
+                url = this._setURLByFilters(url, oSettings.filters);
+            }
             $.ajax({
-                url:url,
-                type:'GET',
-                beforeSend: function(request) {
+                url: url,
+                type: 'GET',
+                beforeSend: function (request) {
                     //request.setRequestHeader("Authorization", chatbotAPI.nlAPIToken);
                     request.setRequestHeader("Type", "application/json");
                 },
-                dataType:'json',
-                success: function(oData){
-                    if(oSettings && oSettings.success){
+                dataType: 'json',
+                success: function (oData) {
+                    if (oSettings && oSettings.success) {
                         oSettings.success(oData);
                     }
                 }.bind(this),
-                error: function(jqXHR){
+                error: function (jqXHR) {
                     // var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
                     // var error = elm.innerHTML || elm.textContent;
                     // //MessageBox.error(error);
                     // oSettings.error(error);
-                    if(oSettings && oSettings.error){
+                    if (oSettings && oSettings.error) {
                         oSettings.error(jqXHR);
                     }
                 }
             });
         },
 
-        getModelReadPromise: function(baseURL, oSettings){
-            var url = UtilityHandler.getHost()+ baseURL;
-            if(this._checkURLWithCondition(oSettings)){
+        getModelReadPromise: function (baseURL, oSettings) {
+            var url = UtilityHandler.getHost() + baseURL;
+            if (this._checkURLWithCondition(oSettings)) {
                 url = url + "?";
             }
-            if(oSettings && oSettings.filters){
+            if (oSettings && oSettings.filters) {
                 // In case need to add filter conditions
                 url = this._setURLByFilters(url, oSettings.filters);
             }
-             return new Promise(function(resolve, reject){
-                 $.ajax({
-                     url:url,
-                     type:'GET',
-                     beforeSend: function(request) {
-                         request.setRequestHeader("Type", "application/json");
-                     },
-                     dataType:'json',
-                     success: function(oData){
-                         resolve(oData);
-                     }.bind(this),
-                     error: function(jqXHR){
-                         reject(jqXHR);
-                     }
-                 });
-             });
+            return new Promise(function (resolve, reject) {
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    beforeSend: function (request) {
+                        request.setRequestHeader("Type", "application/json");
+                    },
+                    dataType: 'json',
+                    success: function (oData) {
+                        resolve(oData);
+                    }.bind(this),
+                    error: function (jqXHR) {
+                        reject(jqXHR);
+                    }
+                });
+            });
         },
 
         /**
@@ -82,58 +82,71 @@ sap.ui.define([
          * @returns {boolean}
          * @private
          */
-        _checkURLWithCondition: function(oSettings){
-            if(!oSettings){
+        _checkURLWithCondition: function (oSettings) {
+            if (!oSettings) {
                 return false;
             }
-            if(oSettings.filters){
+            if (oSettings.filters) {
                 return true;
             }
             return false;
         },
 
-         _setURLByFilters: function(baseURL, filters){
-             if(!filters || filters.length === 0){
-                 return baseURL;
-             }
-             var i = 0, len = filters.length, str = '$filter=';
-             for(i = 0; i < len; i++){
-                 var filter = filters[i];
-                 if(filter.sOperator === FilterOperator.EQ){
-                     str += filter.sPath + ' eq ' + '\''+filter.oValue1+'\'';
-                 }
-                 if(i < len - 1){
-                     str = str + ' and '
-                 }
-             }
-             return baseURL + str;
-         },
-
+        _setURLByFilters: function (baseURL, filters) {
+            if (!filters || filters.length === 0) {
+                return baseURL;
+            }
+            var i = 0, len = filters.length, str = '$filter=';
+            for (i = 0; i < len; i++) {
+                var filter = filters[i];
+                if (filter.sOperator === FilterOperator.EQ) {
+                    str += filter.sPath + ' eq ' + '\'' + filter.oValue1 + '\'';
+                }
+                if (i < len - 1) {
+                    str = str + ' and '
+                }
+            }
+            return baseURL + str;
+        },
     });
 
     //TODO change id to SCP destination
-    UtilityHandler.getHost = function(){
+    UtilityHandler.getHost = function () {
 
+        //for local test
         return "http://127.0.0.1:4002/client";
+        //return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
         //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
-    UtilityHandler.getDate = function(rawValue){
-        if(typeof rawValue === 'string'){
+    UtilityHandler.getDate = function (rawValue) {
+        if (typeof rawValue === 'string') {
             // In case string type raw date value
             let regex = new RegExp("^\/Date");
-            if(regex.test(rawValue)){
+            if (regex.test(rawValue)) {
                 // In case start with '/Date'
-                var date = new Date(rawValue.slice(6, rawValue.length-2) * 1);
+                var date = new Date(rawValue.slice(6, rawValue.length - 2) * 1);
                 console.log('Current Date:' + date);
                 return date;
 
             }
         }
-        if(typeof rawValue === 'object' && rawValue instanceof Date){
+        if (typeof rawValue === 'object' && rawValue instanceof Date) {
             return rawValue;
         }
-    },
+    };
+    UtilityHandler.getC4CContact = function (fnSuccess, fnError) {
+
+        var userEmail = sap.ushell.Container.getUser().getEmail(),
+            url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + userEmail;
+        $.ajax({
+            method: "GET",
+            url: url,
+            success: fnSuccess,
+            error: fnError
+        });
+    };
+
 
     /**
      * @public: Utility method, converting response from server to error message
@@ -141,31 +154,31 @@ sap.ui.define([
      * @returns {string} error message
      *
      */
-    UtilityHandler.getErrorMessageFromErrorResponse = function(jqXHR){
-        var  errorUnion;
-        if(jqXHR && jqXHR.responseText && jqXHR.responseText.getElementsByTagName("message")){
+    UtilityHandler.getErrorMessageFromErrorResponse = function (jqXHR) {
+        var errorUnion;
+        if (jqXHR && jqXHR.responseText && jqXHR.responseText.getElementsByTagName("message")) {
             errorUnion = jqXHR.responseText.getElementsByTagName("message");
-            if(typeof errorUnion === 'string'){
+            if (typeof errorUnion === 'string') {
                 return errorUnion;
             }
-            if(typeof errorUnion === 'object' && errorUnion.length && errorUnion.length> 0){
+            if (typeof errorUnion === 'object' && errorUnion.length && errorUnion.length > 0) {
                 return errorUnion[0];
             }
         }
-        if(jqXHR.error && typeof jqXHR.error === 'string'){
+        if (jqXHR.error && typeof jqXHR.error === 'string') {
             return jqXHR.error;
         }
-        if(jqXHR.error && typeof jqXHR.error === 'object'){
-            if(jqXHR.error.message && typeof jqXHR.error.message === 'string'){
+        if (jqXHR.error && typeof jqXHR.error === 'object') {
+            if (jqXHR.error.message && typeof jqXHR.error.message === 'string') {
                 return jqXHR.error.message;
             }
-            if(jqXHR.error.message && typeof jqXHR.error.message === 'object'){
-                if(jqXHR.error.message.value && typeof jqXHR.error.message.value === 'string'){
+            if (jqXHR.error.message && typeof jqXHR.error.message === 'object') {
+                if (jqXHR.error.message.value && typeof jqXHR.error.message.value === 'string') {
                     return jqXHR.error.message.value;
                 }
             }
         }
-    }
+    };
 
     return UtilityHandler;
 });
