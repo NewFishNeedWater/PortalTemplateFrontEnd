@@ -20,11 +20,11 @@ sap.ui.define([
 				this._bMessageOpen = false;
 				this._sErrorText = this._oResourceBundle.getText("errorText");
 
-				this._oModel.attachMetadataFailed(function (oEvent) {
-					var oParams = oEvent.getParameters();
-
-					this._showMetadataError(oParams.response);
-				}, this);
+				// this._oModel.attachMetadataFailed(function (oEvent) {
+				// 	var oParams = oEvent.getParameters();
+                //
+				// 	this._showMetadataError(oParams.response);
+				// }, this);
 
 				this._oModel.attachRequestFailed(function (oEvent) {
 					var oParams = oEvent.getParameters();
@@ -38,28 +38,28 @@ sap.ui.define([
 				}, this);
 			},
 
-			/**
-			 * Shows a {@link sap.m.MessageBox} when the metadata call has failed.
-			 * The user can try to refresh the metadata.
-			 * @param {string} sDetails a technical error to be displayed on request
-			 * @private
-			 */
-			_showMetadataError: function (sDetails) {
-				MessageBox.error(
-					this._sErrorText,
-					{
-						id: "metadataErrorMessageBox",
-						details: sDetails,
-						styleClass: this._oComponent.getContentDensityClass(),
-						actions: [MessageBox.Action.RETRY, MessageBox.Action.CLOSE],
-						onClose: function (sAction) {
-							if (sAction === MessageBox.Action.RETRY) {
-								this._oModel.refreshMetadata();
-							}
-						}.bind(this)
-					}
-				);
-			},
+			// /**
+			//  * Shows a {@link sap.m.MessageBox} when the metadata call has failed.
+			//  * The user can try to refresh the metadata.
+			//  * @param {string} sDetails a technical error to be displayed on request
+			//  * @private
+			//  */
+			// _showMetadataError: function (sDetails) {
+			// 	MessageBox.error(
+			// 		this._sErrorText,
+			// 		{
+			// 			id: "metadataErrorMessageBox",
+			// 			details: sDetails,
+			// 			styleClass: this._oComponent.getContentDensityClass(),
+			// 			actions: [MessageBox.Action.RETRY, MessageBox.Action.CLOSE],
+			// 			onClose: function (sAction) {
+			// 				if (sAction === MessageBox.Action.RETRY) {
+			// 					this._oModel.refreshMetadata();
+			// 				}
+			// 			}.bind(this)
+			// 		}
+			// 	);
+			// },
 
 			/**
 			 * Shows a {@link sap.m.MessageBox} when a service call has failed.
