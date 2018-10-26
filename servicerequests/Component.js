@@ -77,6 +77,7 @@ sap.ui.define([
 			} else {
 
 			    this.getServiceRequest();
+                this._oErrorHandler = new ErrorHandler(this);
 
 			}
 
@@ -225,7 +226,7 @@ sap.ui.define([
 			this.oListSelector.destroy();
 			if (!this.mockData) {
 			    //TODO we need error handler
-				//this._oErrorHandler.destroy();
+				this._oErrorHandler.destroy();
 			}
 			// call the base component's destroy function
 			UIComponent.prototype.destroy.apply(this, arguments);
