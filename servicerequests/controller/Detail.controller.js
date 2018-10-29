@@ -554,6 +554,7 @@ sap.ui.define([
 		 */
 		_onObjectMatched: function(oEvent) {
 			var sObjectId = oEvent.getParameter("arguments").objectId;
+            console.log('Enter: _onObjectMatched');
 			if (this.getOwnerComponent().mockData) {
 				var collection = this.getModel().getData().ServiceRequestCollection;
 				for (var i = 0; i < collection.length; i++) {
@@ -563,26 +564,30 @@ sap.ui.define([
 				}
 				this._bindView("/ServiceRequestCollection/" + i);
 			} else {
-                // this.getModel().attachRequestCompleted(function() {
-				// 	var sObjectPath = this.getModel().createKey("ServiceRequestCollection", {
-				// 		ObjectID: sObjectId
-				// 	});
-				// 	this._bindView("/" + sObjectPath);
-				// }.bind(this));
-                var collection = this.getModel().getData().ServiceRequestCollection;
-                if(collection){
-                    for (var i = 0; i < collection.length; i++) {
-                        if (collection[i].ObjectID === sObjectId) {
-                            break;
-                        }
-                    }
-                    this._bindView("/ServiceRequestCollection/" + i);
-                }
-
+                this.getModel().attachRequestCompleted(function() {
+                    console.log('Enter: attachRequestCompleted received');
+                    this._bindViewWithObjectId(sObjectId);
+				}.bind(this));
+                this._bindViewWithObjectId(sObjectId);
 			}
-
-
 		},
+
+		_bindViewWithObjectId: function(sObjectId){
+            var collection = this.getModel().getData().ServiceRequestCollection;
+            console.log('this.getModel().getData()' + this.getModel().getData());
+            if(collection){
+                console.log('Collection length:' + collection.length);
+			}
+            if(collection){
+                for (var i = 0; i < collection.length; i++) {
+                    if (collection[i].ObjectID === sObjectId) {
+                        break;
+                    }
+                }
+                this._bindView("/ServiceRequestCollection/" + i);
+            }
+		},
+
 		/**
 		 * Binds the view to the object path. Makes sure that detail view displays
 		 * a busy indicator while data for the corresponding element binding is loaded.
@@ -617,6 +622,7 @@ sap.ui.define([
 		_onBindingChange: function() {
 			var oView = this.getView(),
 				oElementBinding = oView.getElementBinding();
+			console.log('Enter: _onBindingChange');
 			var isMock = this.getOwnerComponent().mockData;
 			if (!isMock || (isMock && this.mockModelLoaded)) {
 				this.getIncidentCategoryList();
@@ -689,6 +695,7 @@ sap.ui.define([
 		_populateAttachmentsList: function(sPath) {
 			var oView = this.getView();
 			var list = oView.byId("attachmentsList");
+            console.log('Enter: _populateAttachmentsList');
 			var attachments = this.getModel().getObject(sPath).ServiceRequestAttachmentFolder;
             for (var j = 0; j < attachments.length; j++) {
             	var createdOn = UtilityHandler.getDate(attachments[j].CreatedOn);

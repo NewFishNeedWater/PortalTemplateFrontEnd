@@ -88,7 +88,21 @@ sap.ui.define([
 					}.bind(this),
 					function () {
 						jQuery.sap.log.warning("Could not select the list item with the path" + sBindingPath + " because the list encountered an error or had no items");
-					}
+						// Force set selected items
+                        var oList = this._oList;
+                        if (oList.getMode() === "None") {
+                            return;
+                        }
+                        if (!oList.getItems()){
+                        	return;
+						}
+                        oList.getItems().some(function (oItem) {
+                            if (oItem.getBindingContext() && oItem.getBindingContext().getPath() === sBindingPath) {
+                                oList.setSelectedItem(oItem);
+                                return true;
+                            }
+                        });
+					}.bind(this)
 				).catch(
                     function (mParameters) {
                     	if(mParameters.error){

@@ -44,7 +44,7 @@ sap.ui.define([
 		init: function() {
 
 		    //TODO remove it when deploy to SCP
-           /* sap.ushell.Container = {
+            sap.ushell.Container = {
                 getUser: function () {
 
                     return {
@@ -54,7 +54,7 @@ sap.ui.define([
                         }
                     };
                 },
-            };*/
+            };
 
             this.utilityHandler = new UtilityHandler();
             // Initial function metadata from back-end.
@@ -120,6 +120,10 @@ sap.ui.define([
                     }
                     model.setData({"ServiceRequestCollection":result});
                     model.refresh();
+                    console.log("Fire request completed");
+                    model.fireRequestCompleted({
+						statusCode:200
+					});
                 }.bind(this),
                 error: function(jqXHR) {
                     var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
