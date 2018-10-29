@@ -58,7 +58,6 @@ sap.ui.define([
 
             this.utilityHandler = new UtilityHandler();
             // Initial function metadata from back-end.
-            //this.getIncidentModelPromise();
             this.getServiceIssueCategoryPromise();
             this.getProductCollectionPromise();
             this.getServiceRequestServicePriorityCodePromise();
@@ -225,7 +224,6 @@ sap.ui.define([
 		destroy: function() {
 			this.oListSelector.destroy();
 			if (!this.mockData) {
-			    //TODO we need error handler
 				this._oErrorHandler.destroy();
 			}
 			// call the base component's destroy function

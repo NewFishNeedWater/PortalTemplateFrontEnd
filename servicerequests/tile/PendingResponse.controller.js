@@ -22,7 +22,7 @@ function (Controller,MessageToast, UtilityHandler) {
                             window.hasher.setHash(navTargetUrl);
                         }
                     }
-                };
+                }.bind(this);
                 var fnError = function(jqXHR){
                     MessageToast.show("Retrieve contact by Email error , Email: " + userEmail ,{Duration:5000});
                 };
@@ -37,7 +37,6 @@ function (Controller,MessageToast, UtilityHandler) {
 
 				$.ajax({
 					method: "GET",
-					// url: "/sap/fiori/servicerequests/destinations/c4c/sap/byd/odata/v1/c4codata/ServiceRequestCollection/$count?$filter=ReporterEmail eq %27" + email + "%27and ServiceRequestUserLifeCycleStatusCode eq %274%27",
 					url: url,
 					success: function(result) {
 						$("#pendingResponseTileNumber").text(result.count);
