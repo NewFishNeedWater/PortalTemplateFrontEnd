@@ -164,10 +164,10 @@ sap.ui.define([
             var items = this._oList.getItems();
             var self = this;
             if (items.length === 0) {
-            	console.log("detailNoObjectsAvailable when item == 0");
-                this.getRouter().getTargets().display("detailNoObjectsAvailable").then(function(){
-                    self.openNewTicketParam();
-                });
+                // this.getRouter().getTargets().display("detailNoObjectsAvailable").then(function(){
+                //     self.openNewTicketParam();
+                // });
+				this.getRouter().navTo("nodata");
             }
             else {
                 if (!this._oList.getSelectedItem() && items.length > 0) {
@@ -913,9 +913,6 @@ sap.ui.define([
 					if (mParams.error) {
 						return;
 					}
-					// In case no data found in list.
-
-                    console.log("detailNoObjectsAvailable when error master matched");
 					this.getRouter().getTargets().display("detailNoObjectsAvailable");
                     this.app.setBusy(false);
 				}.bind(this)
@@ -924,8 +921,6 @@ sap.ui.define([
                     if (mParams.error) {
                         return;
                     }
-                    // In case no data found in list.
-                    console.log("detailNoObjectsAvailable when no data found in list");
                     this.getRouter().getTargets().display("detailNoObjectsAvailable");
                     this.app.setBusy(false);
 				}.bind(this)
@@ -941,7 +936,7 @@ sap.ui.define([
 		_showDetail: function(oItem) {
 			var bReplace = !Device.system.phone;
 			this.getRouter().navTo("object", {
-				objectId: oItem.getBindingContext().getProperty("ObjectID")
+                objectId: oItem.getBindingContext().getProperty("ObjectID")
 			}, bReplace);
 
 		},

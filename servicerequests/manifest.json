@@ -97,6 +97,13 @@
 						"master",
 						"object"
 					]
+				},{
+					"pattern":"nodata",
+					"name": "nodata",
+					"target": [
+						"master",
+						"detailObjectNotFound"
+					]
 				}
 			],
 			"targets": {

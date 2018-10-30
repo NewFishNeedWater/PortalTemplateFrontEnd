@@ -120,7 +120,6 @@ sap.ui.define([
                     }
                     model.setData({"ServiceRequestCollection":result});
                     model.refresh();
-                    console.log("Fire request completed");
                     model.fireRequestCompleted({
 						statusCode:200
 					});

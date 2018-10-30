@@ -96,12 +96,12 @@ sap.ui.define([
                         if (!oList.getItems()){
                         	return;
 						}
-                        oList.getItems().some(function (oItem) {
-                            if (oItem.getBindingContext() && oItem.getBindingContext().getPath() === sBindingPath) {
-                                oList.setSelectedItem(oItem);
-                                return true;
-                            }
-                        });
+                        // oList.getItems().some(function (oItem) {
+                        //     if (oItem.getBindingContext() && oItem.getBindingContext().getPath() === sBindingPath) {
+                        //         oList.setSelectedItem(oItem);
+                        //         return true;
+                        //     }
+                        // });
 					}.bind(this)
 				).catch(
                     function (mParameters) {
