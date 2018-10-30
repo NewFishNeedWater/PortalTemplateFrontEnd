@@ -164,6 +164,7 @@ sap.ui.define([
             var items = this._oList.getItems();
             var self = this;
             if (items.length === 0) {
+            	console.log("detailNoObjectsAvailable when item == 0");
                 this.getRouter().getTargets().display("detailNoObjectsAvailable").then(function(){
                     self.openNewTicketParam();
                 });
@@ -913,6 +914,8 @@ sap.ui.define([
 						return;
 					}
 					// In case no data found in list.
+
+                    console.log("detailNoObjectsAvailable when error master matched");
 					this.getRouter().getTargets().display("detailNoObjectsAvailable");
                     this.app.setBusy(false);
 				}.bind(this)
@@ -922,6 +925,7 @@ sap.ui.define([
                         return;
                     }
                     // In case no data found in list.
+                    console.log("detailNoObjectsAvailable when no data found in list");
                     this.getRouter().getTargets().display("detailNoObjectsAvailable");
                     this.app.setBusy(false);
 				}.bind(this)

@@ -566,6 +566,10 @@ sap.ui.define([
 			} else {
                 this.getModel().attachRequestCompleted(function() {
                     console.log('Enter: attachRequestCompleted received');
+                    this.sObjectId = sObjectId;
+                    // this.getRouter().navTo("object", {
+                    //     objectId: sObjectId
+                    // }, true);
                     this._bindViewWithObjectId(sObjectId);
 				}.bind(this));
                 this._bindViewWithObjectId(sObjectId);
@@ -627,6 +631,12 @@ sap.ui.define([
 			if (!isMock || (isMock && this.mockModelLoaded)) {
 				this.getIncidentCategoryList();
 			}
+			if(this.sObjectId){
+                this.getRouter().navTo("object", {
+                    objectId: this.sObjectId
+                }, true);
+			}
+
 
 			// No data for the binding
 			if (!oElementBinding.getBoundContext()) {
