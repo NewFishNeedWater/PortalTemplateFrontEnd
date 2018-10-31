@@ -47,7 +47,8 @@ sap.ui.define([
 			this.utilityHandler = new UtilityHandler();
 			this.initServiceRequestList();
 			var eventBus = sap.ui.getCore().getEventBus();
-            this.app = this.component.getAggregation("rootControl");
+			this.app = this.component.getAggregation("rootControl");
+			this.appController = this.app.getController();
 			eventBus.subscribe("Detail", "DetailHasRendered", function() {
 			});
 			this._oList = oList;
@@ -398,22 +399,26 @@ sap.ui.define([
 		},
 
         _initMetaData:function(oServiceRequestModel){
-            var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
+            // var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
+            var incidentModelPromise = this.appController.getIncidentModelPromise();
             incidentModelPromise.then(function(oData){
                 oServiceRequestModel.IncidentModel = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
+            // var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
+            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 oServiceRequestModel.ServiceRequestServicePriorityCodeCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var serviceIssueCategoryPromise = this.getOwnerComponent().getServiceIssueCategoryPromise();
+			// var serviceIssueCategoryPromise = this.getOwnerComponent().getServiceIssueCategoryPromise();
+			var serviceIssueCategoryPromise = this.appController.getServiceIssueCategoryPromise();
             serviceIssueCategoryPromise.then(function(oData){
                 oServiceRequestModel.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+            // var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+            var productionPromise = this.appController.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 oServiceRequestModel.ProductCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
