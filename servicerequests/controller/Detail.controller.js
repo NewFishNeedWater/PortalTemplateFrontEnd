@@ -41,6 +41,11 @@ sap.ui.define([
 			this.utilityHandler = new UtilityHandler();
 			this.getRouter().getRoute("object").attachPatternMatched(this._onObjectMatched, this);
 			this.setModel(oViewModel, "detailView");
+
+			var URLS = this.getOwnerComponent().SELECT_BOX_URLS;
+			this.app = this.getOwnerComponent().getAggregation("rootControl");
+			this.appController = this.app.getController();
+
             //this.getOwnerComponent().mockData= true;
 			var isMock = this.getOwnerComponent().mockData;
 			if (isMock) {
@@ -63,8 +68,9 @@ sap.ui.define([
                 this.getIncidentCategoryList();
                 this.setModel(this.getOwnerComponent().getListModel());
 			}
-			var URLS = this.getOwnerComponent().SELECT_BOX_URLS;
-			this.app = this.getOwnerComponent().getAggregation("rootControl");
+			// var URLS = this.getOwnerComponent().SELECT_BOX_URLS;
+			// this.app = this.getOwnerComponent().getAggregation("rootControl");
+			// this.appController = this.app.getController();
 			this.app.setBusyIndicatorDelay(0);
 			oView.setBusyIndicatorDelay(0);
 			if (isMock) {
@@ -79,46 +85,68 @@ sap.ui.define([
 		},
 
 		_initMetaData:function(){
-            var oView = this.getView();
-			var that = this;
+			var oView = this.getView();
 			var oServiceRequestData = {};
-            var oModel = new JSONModel();
-            oView.setModel(new JSONModel({results: []}), "IncidentModel");
-            this.utilityHandler.oModelRead(oModel, '/getServicePriorityCode', {
-                success: function(oData){
-                    if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
-                    }else{
-                        oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
-                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-                    }
-                }.bind(this),
-                error: that.onErrorODataRead
-            });
+			oView.setModel(new JSONModel({
+				results: []
+			}), "IncidentModel");
+            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
+            serviceRequestServicePriorityPromise.then(function(oData){
+				oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
+				oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+            }.bind(this));
+			var serviceIssueCategoryPromise = this.appController.getServiceIssueCategoryPromise();
+            serviceIssueCategoryPromise.then(function(oData){
+				oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
+				oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+				this.getIncidentCategoryList();
+            }.bind(this));
+            var productionPromise = this.appController.getProductCollectionPromise();
+            productionPromise.then(function(oData){
+				oServiceRequestData.ProductCollection = oData;
+				oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+            }.bind(this));
 
-            this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
-                success: function(oData){
-                    if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
-                    }else{
-                        oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
-                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-                        this.getIncidentCategoryList();
-                    }
-                }.bind(this),
-                error: that.onErrorODataRead
-            });
-            this.utilityHandler.oModelRead(oModel, '/getProductCollection?$skip=0&$top=100', {
-                success: function(oData){
-                    if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
-                    }else{
-                        oServiceRequestData.ProductCollection = oData;
-                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-                    }
-                }.bind(this),
-                error: that.onErrorODataRead
-            });
+
+
+
+			// var that = this;
+            // var oModel = new JSONModel();
+            // this.utilityHandler.oModelRead(oModel, '/getServicePriorityCode', {
+            //     success: function(oData){
+            //         if(oData && oData.error){
+            //             this._onErrorMessageFound(oData.error);
+            //         }else{
+            //             oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
+            //             oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+            //         }
+            //     }.bind(this),
+            //     error: that.onErrorODataRead
+            // });
+
+            // this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
+            //     success: function(oData){
+            //         if(oData && oData.error){
+            //             this._onErrorMessageFound(oData.error);
+            //         }else{
+            //             oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
+            //             oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+            //             this.getIncidentCategoryList();
+            //         }
+            //     }.bind(this),
+            //     error: that.onErrorODataRead
+            // });
+            // this.utilityHandler.oModelRead(oModel, '/getProductCollection?$skip=0&$top=100', {
+            //     success: function(oData){
+            //         if(oData && oData.error){
+            //             this._onErrorMessageFound(oData.error);
+            //         }else{
+            //             oServiceRequestData.ProductCollection = oData;
+            //             oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+            //         }
+            //     }.bind(this),
+            //     error: that.onErrorODataRead
+            // });
 		},
 		selectInfoService: function() {
 			var oView = this.getView(),
