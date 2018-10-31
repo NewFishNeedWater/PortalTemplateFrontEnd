@@ -35,6 +35,8 @@ sap.ui.define([
             IncidentModel:null
 		},
 
+		listModel:undefined,
+
 		/**
 		 * The component is initialized by UI5 automatically during the startup of the app and calls the init method once.
 		 * In this method, the device models are set and the router is initialized.
@@ -62,24 +64,6 @@ sap.ui.define([
             this.getProductCollectionPromise();
             this.getServiceRequestServicePriorityCodePromise();
 
-			if (window.location.href.indexOf("mockData") !== -1 || sap.ushell.Container.getUser().getEmail() === "") {
-				//this.mockData = true;
-				var model = new JSONModel(jQuery.sap.getModulePath("ServiceRequests") + "/mock/c4codata.json");
-				model.attachRequestCompleted(function() {
-					this.getData().ServiceRequestCollection.forEach(function(request) {
-						request.ServiceRequestDescription.forEach(function(description) {
-							description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
-						});
-					});
-				});
-				this.setModel(model);
-			} else {
-
-			    this.getServiceRequest();
-                this._oErrorHandler = new ErrorHandler(this);
-
-			}
-
 			this.oListSelector = new ListSelector();
 			this.startupParams = this.receiveStartupParams();
 
@@ -94,52 +78,16 @@ sap.ui.define([
 		},
 
 
-        getServiceRequest : function(){
-
-            var model = new JSONModel();
-            this.refreshServiceRequestList(model);
-            //this.setModel(model);
-        },
-
-		refreshServiceRequestList: function(model, fnComplete){
-            var email = sap.ushell.Container.getUser().getEmail();
-            var url =UtilityHandler.getHost()+"/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
-                + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
-            $.ajax({
-                method: "GET",
-                url: url,
-                success: function(result) {
-                    if(result){
-                        result.forEach(function(oServiceRequest) {
-                            if(oServiceRequest.ServiceRequestDescription.length>0){
-                                oServiceRequest.ServiceRequestDescription.forEach(function(description) {
-                                    description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
-                                });
-                            }
-                        });
-                    }
-                    model.setData({"ServiceRequestCollection":result});
-                    model.refresh();
-                    model.fireRequestCompleted({
-						statusCode:200
-					});
-                }.bind(this),
-                error: function(jqXHR) {
-                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                    var error = errorMessage?errorMessage:'Service requests list can not be retrieved!';
-                    MessageBox.error(error);
-                },
-                complete: function() {
-                    if(fnComplete){
-                        fnComplete();
-					}
-                }.bind(this)
-
-            });
-            this.setModel(model);
+		getListModel: function(){
+			return this.listModel;
 		},
 
-		getServiceRequestServicePriorityCodePromise: function(){
+        setListModel: function(listModel){
+            this.listModel = listModel;
+        },
+
+
+        getServiceRequestServicePriorityCodePromise: function(){
             return new Promise(function(resolve, reject) {
             	if(this.functionMetaData.ServiceRequestServicePriorityCodeCollection){
             		resolve(this.functionMetaData.ServiceRequestServicePriorityCodeCollection)

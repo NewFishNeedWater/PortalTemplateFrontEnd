@@ -61,6 +61,7 @@ sap.ui.define([
                 this._onMetadataLoaded();
                 this._initMetaData();
                 this.getIncidentCategoryList();
+                this.setModel(this.getOwnerComponent().getListModel());
 			}
 			var URLS = this.getOwnerComponent().SELECT_BOX_URLS;
 			this.app = this.getOwnerComponent().getAggregation("rootControl");
@@ -624,12 +625,6 @@ sap.ui.define([
 			if (!isMock || (isMock && this.mockModelLoaded)) {
 				this.getIncidentCategoryList();
 			}
-			if(this.sObjectId){
-                this.getRouter().navTo("object", {
-                    objectId: this.sObjectId
-                }, true);
-			}
-
 
 			// No data for the binding
 			if (!oElementBinding.getBoundContext()) {
