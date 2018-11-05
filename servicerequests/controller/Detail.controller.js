@@ -564,7 +564,7 @@ sap.ui.define([
 				this._bindView("/ServiceRequestCollection/" + i);
 			} else {
                 this.getModel().attachRequestCompleted(function() {
-                    this.sObjectId = sObjectId;
+                    //this.sObjectId = sObjectId;
                     this.getRouter().navTo("object", {
                         objectId: sObjectId
                     }, true);
@@ -576,14 +576,30 @@ sap.ui.define([
 
 		_bindViewWithObjectId: function(sObjectId){
             var collection = this.getModel().getData().ServiceRequestCollection;
-            if(collection){
+            /*if(collection){
                 for (var i = 0; i < collection.length; i++) {
-                    if (collection[i].ObjectID === sObjectId) {
-                        break;
+
+                    for (var i = 0; i < collection.length; i++) {
+                        if (collection[i].ObjectID === sObjectId) {
+                            break;
+                        }else{
+                            for(var j in mContexts){
+                                if(this.getModel().getObject(mContexts[j].sPath).ObjectID === collection[i].ObjectID){
+                                    this._bindView(j);
+                                }
+                            }
+                        }
                     }
                 }
-                this._bindView("/ServiceRequestCollection/" + i);
+
+            }*/
+            for (var i = 0; i < collection.length; i++) {
+                if (collection[i].ObjectID === sObjectId) {
+                    break;
+                }
             }
+            this._bindView("/ServiceRequestCollection/" + i);
+
 		},
 
 		/**
@@ -624,11 +640,13 @@ sap.ui.define([
 			if (!isMock || (isMock && this.mockModelLoaded)) {
 				this.getIncidentCategoryList();
 			}
-			if(this.sObjectId){
+
+			//TODO not sure why need below codes?
+		/*	if(this.sObjectId){
                 this.getRouter().navTo("object", {
                     objectId: this.sObjectId
                 }, true);
-			}
+			}*/
 
 
 			// No data for the binding

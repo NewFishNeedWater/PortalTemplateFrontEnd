@@ -736,6 +736,7 @@ sap.ui.define([
         refreshServiceRequestList: function(){
             var oListView = this.byId("list");
             oListView.setBusy(true);
+            this.app.setBusy(true);
             var model = this.getModel();
             this._oList.removeSelections();
             this.getOwnerComponent().refreshServiceRequestList(this.getOwnerComponent().getModel(), function(){
