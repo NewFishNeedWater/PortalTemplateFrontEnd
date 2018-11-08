@@ -438,24 +438,33 @@ sap.ui.define([
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this)).catch(function(oError){
                 // Catch exceptions:
-                that.onErrorODataRead.bind(this);
+                UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
             // var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
             var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 oServiceRequestModel.ServiceRequestServicePriorityCodeCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+            }.bind(this)).catch(function(oError){
+                // Catch exceptions:
+                UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 			var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
             serviceCategoryPromise.then(function(oData){
                 oServiceRequestModel.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+            }.bind(this)).catch(function(oError){
+                // Catch exceptions:
+                UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
             // var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
             var productionPromise = this.appController.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 oServiceRequestModel.ProductCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+            }.bind(this)).catch(function(oError){
+                // Catch exceptions:
+                UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
         },
 

@@ -93,10 +93,10 @@ sap.ui.define([
                     oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
                 }
-            }.bind(this), that.onErrorODataRead.bind(this)).catch(function(oError){
-            	// Catch exceptions:
-                that.onErrorODataRead.bind(this);
-			}.bind(this));
+            }.bind(this), UtilityHandler.onErrorDataReadWrap).catch(function(oError){
+                // Catch exceptions:
+                UtilityHandler.onErrorDataReadWrap(oError);
+            }.bind(this));
 
             var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
             serviceCategoryPromise.then(function(oData){
@@ -107,9 +107,9 @@ sap.ui.define([
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
                     this.getIncidentCategoryListWrap();
                 }
-            }.bind(this), that.onErrorODataRead.bind(this) ).catch(function(oError){
+            }.bind(this), UtilityHandler.onErrorDataReadWrap).catch(function(oError){
                 // Catch exceptions:
-                that.onErrorODataRead.bind(this);
+                UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 
             var productionPromise = this.appController.getProductCollectionPromise();
@@ -120,9 +120,9 @@ sap.ui.define([
                     oServiceRequestData.ProductCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
                 }
-            }.bind(this), that.onErrorODataRead.bind(this)).catch(function(oError){
+            }.bind(this), UtilityHandler.onErrorDataReadWrap).catch(function(oError){
                 // Catch exceptions:
-                that.onErrorODataRead.bind(this);
+                UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 		},
 
@@ -142,17 +142,6 @@ sap.ui.define([
 			var oModel = this.getModel(),
 				selectedKey = oModel.getObject(sPath).ServiceIssueCategoryID;
 			oView.byId("infoServiceCategorySelect").setSelectedKey(selectedKey);
-		},
-
-        /**
-		 * Utility method: process and show the error message
-         * @param jqXHR
-         */
-		onErrorODataRead: function(jqXHR) {
-            var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-            if(errorMessage){
-                MessageBox.error(errorMessage);
-            }
 		},
 
 		//TODO obosolete method, could be delete

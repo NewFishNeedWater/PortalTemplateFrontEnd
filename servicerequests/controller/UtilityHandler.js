@@ -1,7 +1,8 @@
 sap.ui.define([
     "sap/ui/base/Object",
-    "sap/ui/model/FilterOperator"
-], function (UI5Object, FilterOperator) {
+    "sap/ui/model/FilterOperator",
+    "sap/m/MessageBox",
+], function (UI5Object, FilterOperator, MessageBox) {
     "use strict";
 
     var UtilityHandler = UI5Object.extend("ServiceRequests.controller.UtilityHandler", {
@@ -178,7 +179,12 @@ sap.ui.define([
         }
     };
 
-
+    UtilityHandler.onErrorDataReadWrap = function (jqXHR) {
+        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+        if(errorMessage){
+            MessageBox.error(errorMessage);
+        }
+    };
 
     return UtilityHandler;
 });
