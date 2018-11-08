@@ -36,17 +36,27 @@ sap.ui.define([
 		 */
 		onInit: function() {
 			this.component = this.getOwnerComponent();
-			this.alreadyRendered = false;
-			// Control state model
 			var oList = this.byId("list"),
 				oViewModel = this._createViewModel(),
 				// Put down master list's original value for busy indicator delay,
 				// so it can be restored later on. Busy handling on the master list is
 				// taken care of by the master list itself.
 				iOriginalBusyDelay = oList.getBusyIndicatorDelay();
+
+			// Class attributes for error message
+			// Indicator wheather the ticket list error message is open or not
+            this._bListErrorMessageOpen = false;
+            this._oResourceBundle = this.component.getModel("i18n").getResourceBundle();
+            this._sErrorText = this._oResourceBundle.getText("errorText");
+
+
+            this.setModel(oViewModel, "masterView");
 			this.utilityHandler = new UtilityHandler();
+			this.initServiceRequestList();
+			// Checking what's the use
 			var eventBus = sap.ui.getCore().getEventBus();
-            this.app = this.component.getAggregation("rootControl");
+			this.app = this.component.getAggregation("rootControl");
+			this.appController = this.app.getController();
 			eventBus.subscribe("Detail", "DetailHasRendered", function() {
 			});
 			this._oList = oList;
@@ -55,7 +65,7 @@ sap.ui.define([
 				aFilter: [],
 				aSearch: []
 			};
-			this.setModel(oViewModel, "masterView");
+
 			// Make sure, busy indication is showing immediately so there is no
 			// break after the busy indication for loading the view's meta data is
 			// ended (see promise 'oWhenMetadataIsLoaded' in AppController)
@@ -79,11 +89,115 @@ sap.ui.define([
 				view.byId("downloadButton").setEnabled(true);
 			}
 		},
+
+        /**
+		 * Get Service request list data from back-end
+         * @param model
+         * @param fnComplete
+         */
+        getServiceRequestListBackend: function(model, fnComplete){
+            var email = sap.ushell.Container.getUser().getEmail();
+            var url =UtilityHandler.getHost()+"/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
+                + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
+            $.ajax({
+                method: "GET",
+                url: url,
+                success: function(result) {
+                    if(result && result.forEach){
+                        result.forEach(function(oServiceRequest) {
+                            if(oServiceRequest.ServiceRequestDescription.length>0){
+                                oServiceRequest.ServiceRequestDescription.forEach(function(description) {
+                                	// set description created on date formate
+                                    description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
+                                });
+                            }
+                        });
+                        model.setData({"ServiceRequestCollection":result});
+                        model.refresh();
+                        model.fireRequestCompleted({
+                            statusCode:200,
+                            list:this._oList
+                        });
+                    }else{
+                    	// In case empty data
+					}
+                }.bind(this),
+                error: function(jqXHR) {
+                    if (jqXHR.status === 404  || (jqXHR.status === 404 && jqXHR.responseText.indexOf("Cannot POST") === 0)) {
+                        this._showListServiceError(jqXHR);
+                        return;
+                    }
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    var error = errorMessage?errorMessage:'Service requests list can not be retrieved!';
+                    MessageBox.error(error);
+                }.bind(this),
+                complete: function() {
+                    if(fnComplete){
+                        fnComplete();
+                    }
+                }.bind(this)
+            });
+            this.setModel(model);
+		},
+
+        /**
+		 * @private In case loading ticket list server error: pop-up error message
+         * @param sDetails
+         *
+         */
+        _showListServiceError: function (sDetails) {
+            if (this._bListErrorMessageOpen) {
+                return;
+            }
+            this._bListErrorMessageOpen = true;
+            MessageBox.error(
+                this._sErrorText,
+                {
+                    id: "serviceErrorMessageBox",
+                    details: sDetails,
+                    styleClass: this.getOwnerComponent().getContentDensityClass(),
+                    actions: [MessageBox.Action.CLOSE],
+                    onClose: function () {
+                        this._bListErrorMessageOpen = false;
+                    }.bind(this)
+                }
+            );
+        },
+
+        /**
+		 * Wrapper method to initial loading the service requests list data and set to component data area
+         */
+		initServiceRequestList: function(){
+            if (window.location.href.indexOf("mockData") !== -1 || sap.ushell.Container.getUser().getEmail() === "") {
+                // In case mock data
+                var mockModel = new JSONModel(jQuery.sap.getModulePath("ServiceRequests") + "/mock/c4codata.json");
+                mockModel.attachRequestCompleted(function() {
+                    this.getData().ServiceRequestCollection.forEach(function(request) {
+                        request.ServiceRequestDescription.forEach(function(description) {
+                            description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
+                        });
+                    });
+                });
+                this.setModel(model);
+            } else {
+            	// In case NOT mock data
+                var model = this.getOwnerComponent().getListModel(model);
+                this.getServiceRequestListBackend(model);
+                //this._oErrorHandler = new ErrorHandler(this);
+            }
+		},
+
+        /**
+		 * Handler method before Rendering the master view
+         */
 		onBeforeRendering: function() {
 			this.getC4CContact();
 			this.setListFilters();
 		},
 
+        /**
+		 * Checking the Contact email information and Authorization from back-end
+         */
 		getC4CContact: function() {
             var sUserEmail = sap.ushell.Container.getUser().getEmail();
             var fnSuccess = function(result){
@@ -105,46 +219,21 @@ sap.ui.define([
 			UtilityHandler.getC4CContact(fnSuccess,fnError,sUserEmail);
 		},
 
+        /**
+         * Handler method when 'Service Category' is selected as parent object, then 'incident category' will be refreshed with new metadata.
+         */
 		onServiceCategorySelectCreateFragment: function() {
-			this.getIncidentCategoryList();
-		},
-		getIncidentCategoryList: function() {
-			var createServiceSelect = sap.ui.getCore().byId("createServiceCategory"),
-				parentObject = createServiceSelect.getSelectedItem().data("parentObject"),
-                typeCode = createServiceSelect.getSelectedItem().data("typeCode"),
-				cmpt = this.getOwnerComponent(),
-				oModel = cmpt.getModel(),
-				_self = this,
-				URLS = cmpt.SELECT_BOX_URLS;
-			sap.ui.getCore().byId("createIncidentCategory").setBusy(true);
-			if (cmpt.mockData) {
-				var mockModelData = this.oDialog.getModel("ServiceRequest").getData();
-				var incidentModel = mockModelData.IncidentModel;
-				this.initIncidentModel(incidentModel[parentObject]);
-			} else {
-                this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
-                    filters: this.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
-                    success: function(oData){
-                        _self.initIncidentModel(oData);
-					},
-                    error: function(jqXHR) {
-                        // var error = jqXHR.responseJSON.error.message.value;
-                        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                        if(errorMessage){
-                            MessageBox.error(errorMessage);
-						}
-                        sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
-                    }
-                });
-			}
+            var createServiceSelect = sap.ui.getCore().byId("createServiceCategory");
+            this.appController.getIncidentCategoryList({
+                parentObject:createServiceSelect.getSelectedItem().data("parentObject"),
+                typeCode: createServiceSelect.getSelectedItem().data("typeCode"),
+                incidentCategoryControl: sap.ui.getCore().byId("createIncidentCategory"),
+                serviceRequestMockData:this.oDialog.getModel("ServiceRequest").getData(),
+                incidentModel:this.oDialog.getModel("IncidentModel")
+			});
 		},
 
-		initIncidentModel: function(data) {
-			var incidentModel = this.oDialog.getModel("IncidentModel");
-			incidentModel.setData({results:data});
-			incidentModel.refresh();
-			sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
-		},
+
 		/* =========================================================== */
 		/* event handlers                                              */
 		/* =========================================================== */
@@ -167,9 +256,12 @@ sap.ui.define([
                 // this.getRouter().getTargets().display("detailNoObjectsAvailable").then(function(){
                 //     self.openNewTicketParam();
                 // });
+				// Nav to error page with 'No data' warning message
+				// TODO add openNewTicketParam logic here
 				this.getRouter().navTo("nodata");
             }
             else {
+            	// Set selected as first item and nav to detail message
                 if (!this._oList.getSelectedItem() && items.length > 0) {
                     this._oList.setSelectedItem(items[0]);
                     this._showDetail(items[0]);
@@ -275,6 +367,11 @@ sap.ui.define([
 			}
 			return result;
 		},
+
+        /**
+		 * Event handler method to add new
+         * @param context
+         */
 		onAdd: function(context) {
             var sUserEmail = sap.ushell.Container.getUser().getEmail();
 
@@ -301,9 +398,7 @@ sap.ui.define([
                             });
                         } else {
                             var oCreateModel = {};
-
-                            var oCreateJsonModel = new JSONModel(oCreateModel);
-                            this.oDialog.setModel(oCreateJsonModel, "ServiceRequest");
+                            this.oDialog.setModel(new JSONModel(oCreateModel), "ServiceRequest");
                             this._initMetaData(oCreateModel);
                             // this.oDialog.setModel(this.getOwnerComponent().getModel(), "ServiceRequest");
                         }
@@ -326,28 +421,38 @@ sap.ui.define([
             var fnError = function(jqXHR){
                 MessageToast.show("Retrieve contact by Email error , Email: " + sUserEmail ,{Duration:5000});
             };
-
             UtilityHandler.getC4CContact(fnSuccess,fnError,sUserEmail);
 
 		},
 
+        /**
+		 * Initialize/loading the metadata for drop-down UI plugin
+         * @param {object} oServiceRequestModel
+         * @private
+         */
         _initMetaData:function(oServiceRequestModel){
-            var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
+            // var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
+            var incidentModelPromise = this.appController.getIncidentModelPromise();
             incidentModelPromise.then(function(oData){
                 oServiceRequestModel.IncidentModel = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+            }.bind(this)).catch(function(oError){
+                // Catch exceptions:
+                that.onErrorODataRead.bind(this);
             }.bind(this));
-            var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
+            // var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
+            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 oServiceRequestModel.ServiceRequestServicePriorityCodeCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var serviceIssueCategoryPromise = this.getOwnerComponent().getServiceIssueCategoryPromise();
-            serviceIssueCategoryPromise.then(function(oData){
+			var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
+            serviceCategoryPromise.then(function(oData){
                 oServiceRequestModel.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+            // var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+            var productionPromise = this.appController.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 oServiceRequestModel.ProductCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
@@ -376,6 +481,10 @@ sap.ui.define([
 
 		},
 
+        /**
+		 * Handler method when 'Service Category' is loaded
+         * @param oEvent
+         */
 		serviceCategoryLoaded: function(oEvent) {
 		    var that = this;
 			var serviceRequestModel = this.oDialog.getModel("ServiceRequest");
@@ -424,9 +533,18 @@ sap.ui.define([
 		onDialogAdd: function() {
 			this.createTicket();
 		},
+
+        /**
+         * Event handler when new file is uploaded
+         * @param oEvent
+         */
 		onFileChange: function(oEvent) {
 			this.fileToUpload = oEvent.getParameter("files")["0"];
 		},
+
+        /**
+		 * Core logic to insert new created ticket to back-end.
+         */
 		createTicket: function() {
 			var view = this.getView(),
 				core = sap.ui.getCore(),
@@ -585,9 +703,6 @@ sap.ui.define([
 					url: url,
 					method: "POST",
 					contentType: "application/json",
-					// headers: {
-					// 	"X-CSRF-TOKEN": token
-					// },
 					data: JSON.stringify(data),
 					success: this.setTicketDescription.bind(this),
 					error: function(jqXHR) {
@@ -717,6 +832,11 @@ sap.ui.define([
 			}
 			this.fileToUpload = null;
 		},
+
+        /**
+		 * After
+         * @param data
+         */
 		finishCreateTicket: function(data) {
 			var model = this.getModel(),
 				modelData = model.getData();
@@ -741,7 +861,7 @@ sap.ui.define([
             oListView.setBusy(true);
             var model = this.getModel();
             this._oList.removeSelections();
-            this.getOwnerComponent().refreshServiceRequestList(this.getOwnerComponent().getModel(), function(){
+            this.getServiceRequestListBackend(this.getOwnerComponent().getListModel(), function(){
                 var oListView = this.byId("list");
                 oListView.setBusy(false);
 			}.bind(this));
@@ -794,14 +914,16 @@ sap.ui.define([
 		isStringEmpty: function(text) {
 			return text.trim().length === 0;
 		},
+
+        /**
+		 * Set filters directly on List plugin
+         */
 		setListFilters: function() {
 			var startupParams = this.component.startupParams;
-
 			// if (!this.mockData) {
 			// 	var userEmail = sap.ushell.Container.getUser().getEmail();
 			// 	//this._oListFilterState.aFilter.push(new Filter("ReporterEmail", FilterOperator.EQ, userEmail));
 			// }
-
 			if (startupParams.pendingResponse) {
 				this._oListFilterState.aFilter.push(new Filter("ServiceRequestUserLifeCycleStatusCode", FilterOperator.EQ, "4"));
 			} else {
@@ -810,10 +932,12 @@ sap.ui.define([
 					this._oListFilterState.aFilter.push(new Filter("ServicePriorityCode", FilterOperator.LT, "3"));
 				}
 			}
-
 			this._oList.getBinding("items").filter(this._oListFilterState.aFilter, "Application");
 		},
 
+        /**
+		 *  Event handler method: downloading the ticket lists to excel
+         */
 		onDownload: function() {
 			var download = new Export({
 				exportType: new ExportTypeCSV({
@@ -883,6 +1007,11 @@ sap.ui.define([
 			}
 		},
 
+        /**
+		 * @private Initialize JSON Model 'Master View Model' to control view display
+         * @returns {JSONModel}
+         *
+         */
 		_createViewModel: function() {
 			return new JSONModel({
 				isFilterBarVisible: false,
