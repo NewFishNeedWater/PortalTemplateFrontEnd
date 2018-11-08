@@ -46,7 +46,7 @@ sap.ui.define([
 		init: function() {
 
 		    //TODO remove it when deploy to SCP
-          /*  sap.ushell.Container = {
+            /*sap.ushell.Container = {
                 getUser: function () {
 
                     return {
@@ -57,12 +57,6 @@ sap.ui.define([
                     };
                 },
             };*/
-
-            this.utilityHandler = new UtilityHandler();
-            // Initial function metadata from back-end.
-            // this.getServiceIssueCategoryPromise();
-            // this.getProductCollectionPromise();
-            // this.getServiceRequestServicePriorityCodePromise();
 
 			this.oListSelector = new ListSelector();
 			this.startupParams = this.receiveStartupParams();
@@ -85,55 +79,6 @@ sap.ui.define([
         setListModel: function(listModel){
             this.listModel = listModel;
         },
-
-
-        // getServiceRequestServicePriorityCodePromise: function(){
-        //     return new Promise(function(resolve, reject) {
-        //     	if(this.functionMetaData.ServiceRequestServicePriorityCodeCollection){
-        //     		resolve(this.functionMetaData.ServiceRequestServicePriorityCodeCollection)
-		// 		}
-		// 		this.utilityHandler.getModelReadPromise('/getServicePriorityCode').then(function(oData){
-        //             this.functionMetaData.ServiceRequestServicePriorityCodeCollection = oData;
-        //             resolve(this.functionMetaData.ServiceRequestServicePriorityCodeCollection)
-        //         }.bind(this));
-        //     }.bind(this));
-		// },
-
-        // getServiceIssueCategoryPromise: function(){
-        //     return new Promise(function(resolve, reject) {
-        //         if(this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection){
-        //             resolve(this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection)
-        //         }
-        //         this.utilityHandler.getModelReadPromise('/getServiceCategory').then(function(oData){
-        //             this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
-        //             resolve(this.functionMetaData.ServiceIssueCategoryCatalogueCategoryCollection)
-		// 		}.bind(this));
-        //     }.bind(this));
-        // },
-
-        // getProductCollectionPromise: function(){
-        //     return new Promise(function(resolve, reject) {
-        //         if(this.functionMetaData.ProductCollection){
-        //             resolve(this.functionMetaData.ProductCollection)
-        //         }
-        //         this.utilityHandler.getModelReadPromise('/getProductCollection?$skip=0&$top=100').then(function(oData){
-        //             this.functionMetaData.ProductCollection = oData;
-        //             resolve(this.functionMetaData.ProductCollection)
-        //         }.bind(this));
-        //     }.bind(this));
-        // },
-
-        // getIncidentModelPromise: function(){
-        //     return new Promise(function(resolve, reject) {
-        //         if(this.functionMetaData.incidentModel){
-        //             resolve(this.functionMetaData.incidentModel)
-        //         }
-        //         this.utilityHandler.getModelReadPromise('/getIncidentCategory').then(function(oData){
-        //             this.functionMetaData.incidentModel = oData;
-        //             resolve(this.functionMetaData.incidentModel)
-        //         }.bind(this));
-        //     }.bind(this));
-        // },
 
         createIncidentCategoryFilters: function(parentObject, typeCode) {
             return [

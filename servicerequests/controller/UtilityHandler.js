@@ -38,10 +38,6 @@ sap.ui.define([
                     }
                 }.bind(this),
                 error: function (jqXHR) {
-                    // var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-                    // var error = elm.innerHTML || elm.textContent;
-                    // //MessageBox.error(error);
-                    // oSettings.error(error);
                     if (oSettings && oSettings.error) {
                         oSettings.error(jqXHR);
                     }
