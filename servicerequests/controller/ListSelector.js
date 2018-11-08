@@ -3,6 +3,7 @@ sap.ui.define([
 	], function (BaseObject) {
 		"use strict";
 
+        //TODO !! obsolete class, could be deleted !!
 		return BaseObject.extend("ServiceRequests.model.ListSelector", {
 
 			/**
@@ -108,9 +109,7 @@ sap.ui.define([
                     	if(mParameters.error){
                     		return;
 						}
-
                     }
-
 				);
 			},
 

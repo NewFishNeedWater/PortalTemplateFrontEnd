@@ -4,6 +4,7 @@ sap.ui.define([
 	], function (UI5Object, MessageBox) {
 		"use strict";
 
+		//TODO !! obsolete class, could be deleted !!
 		return UI5Object.extend("ServiceRequests.controller.ErrorHandler", {
 
 			/**

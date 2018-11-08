@@ -83,41 +83,46 @@ sap.ui.define([
 			var oServiceRequestData = {};
             var oModel = new JSONModel();
             oView.setModel(new JSONModel({results: []}), "IncidentModel");
-            this.utilityHandler.oModelRead(oModel, '/getServicePriorityCode', {
-                success: function(oData){
-                    if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
-                    }else{
-                        oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
-                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-                    }
-                }.bind(this),
-                error: that.onErrorODataRead
-            });
 
-            this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
-                success: function(oData){
-                    if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
-                    }else{
-                        oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
-                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-                        this.getIncidentCategoryList();
-                    }
-                }.bind(this),
-                error: that.onErrorODataRead
-            });
-            this.utilityHandler.oModelRead(oModel, '/getProductCollection?$skip=0&$top=100', {
-                success: function(oData){
-                    if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
-                    }else{
-                        oServiceRequestData.ProductCollection = oData;
-                        oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
-                    }
-                }.bind(this),
-                error: that.onErrorODataRead
-            });
+            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
+            serviceRequestServicePriorityPromise.then(function(oData){
+                if(oData && oData.error){
+                    this._onErrorMessageFound(oData.error);
+                }else{
+                    oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
+                    oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                }
+            }.bind(this), that.onErrorODataRead.bind(this)).catch(function(oError){
+            	// Catch exceptions:
+                that.onErrorODataRead.bind(this);
+			}.bind(this));
+
+            var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
+            serviceCategoryPromise.then(function(oData){
+                if(oData && oData.error){
+                    this._onErrorMessageFound(oData.error);
+                }else{
+                    oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
+                    oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                    this.getIncidentCategoryListWrap();
+                }
+            }.bind(this), that.onErrorODataRead.bind(this) ).catch(function(oError){
+                // Catch exceptions:
+                that.onErrorODataRead.bind(this);
+            }.bind(this));
+
+            var productionPromise = this.appController.getProductCollectionPromise();
+            productionPromise.then(function(oData){
+                if(oData && oData.error){
+                    this._onErrorMessageFound(oData.error);
+                }else{
+                    oServiceRequestData.ProductCollection = oData;
+                    oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
+                }
+            }.bind(this), that.onErrorODataRead.bind(this)).catch(function(oError){
+                // Catch exceptions:
+                that.onErrorODataRead.bind(this);
+            }.bind(this));
 		},
 		selectInfoService: function() {
 			var oView = this.getView(),
@@ -565,9 +570,9 @@ sap.ui.define([
 			} else {
                 this.getModel().attachRequestCompleted(function() {
                     this.sObjectId = sObjectId;
-                    this.getRouter().navTo("object", {
-                        objectId: sObjectId
-                    }, true);
+                    // this.getRouter().navTo("object", {
+                    //     objectId: sObjectId
+                    // }, true);
                     this._bindViewWithObjectId(sObjectId);
 				}.bind(this));
                 this._bindViewWithObjectId(sObjectId);
@@ -622,7 +627,7 @@ sap.ui.define([
 				oElementBinding = oView.getElementBinding();
 			var isMock = this.getOwnerComponent().mockData;
 			if (!isMock || (isMock && this.mockModelLoaded)) {
-				this.getIncidentCategoryList();
+				this.getIncidentCategoryListWrap();
 			}
 			if(this.sObjectId){
                 this.getRouter().navTo("object", {
@@ -636,11 +641,11 @@ sap.ui.define([
 				this.getRouter().getTargets().display("detailObjectNotFound");
 				// if object could not be found, the selection in the master list
 				// does not make sense anymore.
-				this.getOwnerComponent().oListSelector.clearMasterListSelection();
+				// this.getOwnerComponent().oListSelector.clearMasterListSelection();
 				return;
 			}
 			var sPath = oElementBinding.getPath();
-			this.getOwnerComponent().oListSelector.selectAListItem(sPath);
+			//this.getOwnerComponent().oListSelector.selectAListItem(sPath);
 			this._populateDescriptionsList(sPath);
 			this._populateAttachmentsList(sPath);
 		},

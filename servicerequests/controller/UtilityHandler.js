@@ -109,9 +109,9 @@ sap.ui.define([
             return baseURL + str;
         },
     });
+
     //TODO change id to SCP destination
     UtilityHandler.getHost = function () {
-
         //for local test
         return "http://127.0.0.1:4002/client";
         //return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
@@ -155,13 +155,16 @@ sap.ui.define([
      */
     UtilityHandler.getErrorMessageFromErrorResponse = function (jqXHR) {
         var errorUnion;
-        if (jqXHR && jqXHR.responseText && jqXHR.responseText.getElementsByTagName("message")) {
-            errorUnion = jqXHR.responseText.getElementsByTagName("message");
-            if (typeof errorUnion === 'string') {
-                return errorUnion;
-            }
-            if (typeof errorUnion === 'object' && errorUnion.length && errorUnion.length > 0) {
-                return errorUnion[0];
+        if(jqXHR && jqXHR.responseText){
+
+            if(jqXHR.responseText.getElementsByTagName && jqXHR.responseText.getElementsByTagName("message")) {
+                errorUnion = jqXHR.responseText.getElementsByTagName("message");
+                if (typeof errorUnion === 'string') {
+                    return errorUnion;
+                }
+                if (typeof errorUnion === 'object' && errorUnion.length && errorUnion.length > 0) {
+                    return errorUnion[0];
+                }
             }
         }
         if (jqXHR.error && typeof jqXHR.error === 'string') {
@@ -178,6 +181,8 @@ sap.ui.define([
             }
         }
     };
+
+
 
     return UtilityHandler;
 });

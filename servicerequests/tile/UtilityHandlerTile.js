@@ -5,7 +5,7 @@ sap.ui.define([
 
     var UtilityHandlerTile = UI5Object.extend("ServiceRequests.tile.UtilityHandlerTile", {
     });
-    //TODO change id to SCP destination
+
     UtilityHandlerTile.getHost = function () {
 
         //for local test

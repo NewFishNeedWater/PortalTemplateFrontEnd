@@ -63,11 +63,11 @@ sap.ui.define([
 				// Restore original busy indicator delay for the list
 				oViewModel.setProperty("/delay", iOriginalBusyDelay);
 			});
-			this.getView().addEventDelegate({
-				onBeforeFirstShow: function() {
-					this.getOwnerComponent().oListSelector.setBoundMasterList(oList);
-				}.bind(this)
-			});
+			// this.getView().addEventDelegate({
+			// 	onBeforeFirstShow: function() {
+			// 		//this.getOwnerComponent().oListSelector.setBoundMasterList(oList);
+			// 	}.bind(this)
+			// });
 
 			this.getRouter().getRoute("master").attachPatternMatched(this._onMasterMatched, this);
 			this.getRouter().attachBypassed(this.onBypassed, this);
@@ -178,6 +178,9 @@ sap.ui.define([
             }
 		},
 
+        /**
+		 * Open Create New Ticket Dialog by parameters in URL.
+         */
 		openNewTicketParam: function(){
             var startupParams = this.component.startupParams;
             if (window.location.hash.substring(1).indexOf("createNewTicket=true") > -1 || startupParams.createNewTicket === "true") {
@@ -899,32 +902,51 @@ sap.ui.define([
 		 * @private
 		 */
 		_onMasterMatched: function() {
-			this.getOwnerComponent().oListSelector.oWhenListLoadingIsDone.then(
-				function(mParams) {
-					if (mParams.list.getMode() === "None") {
-						return;
-					}
-					var sObjectId = mParams.firstListitem.getBindingContext().getProperty("ObjectID");
-					this.getRouter().navTo("object", {
-						objectId: sObjectId
-					}, true);
-				}.bind(this),
-				function(mParams) {
-					if (mParams.error) {
-						return;
-					}
-					this.getRouter().getTargets().display("detailNoObjectsAvailable");
-                    this.app.setBusy(false);
-				}.bind(this)
-			).catch(
-				function(mParams){
-                    if (mParams.error) {
-                        return;
-                    }
-                    this.getRouter().getTargets().display("detailNoObjectsAvailable");
-                    this.app.setBusy(false);
-				}.bind(this)
-			);
+
+            this.getModel().attachRequestCompleted(function(mParams) {
+                if (mParams.list.getMode() === "None") {
+                    return;
+                }
+                var sObjectId = mParams.firstListitem.getBindingContext().getProperty("ObjectID");
+                this.getRouter().navTo("object", {
+                    objectId: sObjectId
+                }, true);
+            }.bind(this));
+
+            this.getModel().attachRequestFailed(function(mParams) {
+                if (mParams.error) {
+                    return;
+                }
+                this.getRouter().getTargets().display("detailNoObjectsAvailable");
+                this.app.setBusy(false);
+            }.bind(this));
+
+			// this.getOwnerComponent().oListSelector.oWhenListLoadingIsDone.then(
+			// 	function(mParams) {
+			// 		if (mParams.list.getMode() === "None") {
+			// 			return;
+			// 		}
+			// 		var sObjectId = mParams.firstListitem.getBindingContext().getProperty("ObjectID");
+			// 		this.getRouter().navTo("object", {
+			// 			objectId: sObjectId
+			// 		}, true);
+			// 	}.bind(this),
+			// 	function(mParams) {
+			// 		if (mParams.error) {
+			// 			return;
+			// 		}
+			// 		this.getRouter().getTargets().display("detailNoObjectsAvailable");
+             //        this.app.setBusy(false);
+			// 	}.bind(this)
+			// ).catch(
+			// 	function(mParams){
+             //        if (mParams.error) {
+             //            return;
+             //        }
+             //        this.getRouter().getTargets().display("detailNoObjectsAvailable");
+             //        this.app.setBusy(false);
+			// 	}.bind(this)
+			// );
 		},
 
 		/**
@@ -960,7 +982,6 @@ sap.ui.define([
 		 * @private
 		 */
 		_applyFilterSearch: function() {
-			// TODO to check this logic?
 			var aFilters = this._oListFilterState.aSearch.concat(this._oListFilterState.aFilter),
 				oViewModel = this.getModel("masterView");
 			this._oList.getBinding("items").filter(aFilters, "Application");

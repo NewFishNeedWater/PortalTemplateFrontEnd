@@ -28,13 +28,6 @@ sap.ui.define([
 			ProductCategoryCollection: '/ProductCollection'
 		},
 
-		functionMetaData: {
-            ServiceRequestServicePriorityCodeCollection:null,
-            ServiceIssueCategoryCatalogueCategoryCollection:null,
-            ProductCollection:null,
-            IncidentModel:null
-		},
-
 		/**
 		 * The component is initialized by UI5 automatically during the startup of the app and calls the init method once.
 		 * In this method, the device models are set and the router is initialized.
@@ -225,7 +218,7 @@ sap.ui.define([
 		 * @override
 		 */
 		destroy: function() {
-			this.oListSelector.destroy();
+			//this.oListSelector.destroy();
 			if (!this.mockData) {
 				this._oErrorHandler.destroy();
 			}
