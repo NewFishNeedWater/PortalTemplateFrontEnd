@@ -45,8 +45,10 @@ sap.ui.define([
 				// taken care of by the master list itself.
 				iOriginalBusyDelay = oList.getBusyIndicatorDelay();
 			this.utilityHandler = new UtilityHandler();
+			this.initServiceRequestList();
 			var eventBus = sap.ui.getCore().getEventBus();
-            this.app = this.component.getAggregation("rootControl");
+			this.app = this.component.getAggregation("rootControl");
+			this.appController = this.app.getController();
 			eventBus.subscribe("Detail", "DetailHasRendered", function() {
 			});
 			this._oList = oList;
@@ -79,6 +81,74 @@ sap.ui.define([
 				view.byId("downloadButton").setEnabled(true);
 			}
 		},
+
+        /**
+		 * Get Service request list data from back-end
+         * @param model
+         * @param fnComplete
+         */
+        getServiceRequestListBackend: function(model, fnComplete){
+            var email = sap.ushell.Container.getUser().getEmail();
+            var url =UtilityHandler.getHost()+"/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
+                + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
+            $.ajax({
+                method: "GET",
+                url: url,
+                success: function(result) {
+                    if(result){
+                        result.forEach(function(oServiceRequest) {
+                            if(oServiceRequest.ServiceRequestDescription.length>0){
+                                oServiceRequest.ServiceRequestDescription.forEach(function(description) {
+                                	// set description created on date formate
+                                    description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
+                                });
+                            }
+                        });
+                    }
+                    model.setData({"ServiceRequestCollection":result});
+                    model.refresh();
+                    model.fireRequestCompleted({
+                        statusCode:200
+                    });
+                }.bind(this),
+                error: function(jqXHR) {
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    var error = errorMessage?errorMessage:'Service requests list can not be retrieved!';
+                    MessageBox.error(error);
+                },
+                complete: function() {
+                    if(fnComplete){
+                        fnComplete();
+                    }
+                }.bind(this)
+
+            });
+            this.setModel(model);
+		},
+
+        /**
+		 * Wrapper method to initial loading the service requests list data and set to component data area
+         */
+		initServiceRequestList: function(){
+            if (window.location.href.indexOf("mockData") !== -1 || sap.ushell.Container.getUser().getEmail() === "") {
+                //this.mockData = true;
+                var model = new JSONModel(jQuery.sap.getModulePath("ServiceRequests") + "/mock/c4codata.json");
+                model.attachRequestCompleted(function() {
+                    this.getData().ServiceRequestCollection.forEach(function(request) {
+                        request.ServiceRequestDescription.forEach(function(description) {
+                            description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
+                        });
+                    });
+                });
+                this.setModel(model);
+            } else {
+                var model = new JSONModel();
+                this.getServiceRequestListBackend(model);
+                this.getOwnerComponent().setListModel(model);
+                //this._oErrorHandler = new ErrorHandler(this);
+            }
+		},
+
 		onBeforeRendering: function() {
 			this.getC4CContact();
 			this.setListFilters();
@@ -329,22 +399,26 @@ sap.ui.define([
 		},
 
         _initMetaData:function(oServiceRequestModel){
-            var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
+            // var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
+            var incidentModelPromise = this.appController.getIncidentModelPromise();
             incidentModelPromise.then(function(oData){
                 oServiceRequestModel.IncidentModel = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
+            // var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
+            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 oServiceRequestModel.ServiceRequestServicePriorityCodeCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var serviceIssueCategoryPromise = this.getOwnerComponent().getServiceIssueCategoryPromise();
+			// var serviceIssueCategoryPromise = this.getOwnerComponent().getServiceIssueCategoryPromise();
+			var serviceIssueCategoryPromise = this.appController.getServiceIssueCategoryPromise();
             serviceIssueCategoryPromise.then(function(oData){
                 oServiceRequestModel.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
             }.bind(this));
-            var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+            // var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+            var productionPromise = this.appController.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 oServiceRequestModel.ProductCollection = oData;
                 this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
@@ -739,7 +813,7 @@ sap.ui.define([
             this.app.setBusy(true);
             var model = this.getModel();
             this._oList.removeSelections();
-            this.getOwnerComponent().refreshServiceRequestList(this.getOwnerComponent().getModel(), function(){
+            this.getServiceRequestListBackend(this.getOwnerComponent().getListModel(), function(){
                 var oListView = this.byId("list");
                 oListView.setBusy(false);
 			}.bind(this));
