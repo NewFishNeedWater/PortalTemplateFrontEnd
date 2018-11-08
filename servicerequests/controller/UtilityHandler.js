@@ -38,10 +38,6 @@ sap.ui.define([
                     }
                 }.bind(this),
                 error: function (jqXHR) {
-                    // var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-                    // var error = elm.innerHTML || elm.textContent;
-                    // //MessageBox.error(error);
-                    // oSettings.error(error);
                     if (oSettings && oSettings.error) {
                         oSettings.error(jqXHR);
                     }
@@ -113,8 +109,8 @@ sap.ui.define([
     //TODO change id to SCP destination
     UtilityHandler.getHost = function () {
         //for local test
-        return "http://127.0.0.1:4002/client";
-        //return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
+        //return "http://127.0.0.1:4002/client";
+        return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
         //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 

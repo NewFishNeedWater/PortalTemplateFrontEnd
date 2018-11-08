@@ -197,7 +197,9 @@
 					},
 					"supportedThemes": [
 						"sap_hcb",
-						"sap_bluecrystal"
+						"sap_bluecrystal",
+						"sap_belize",
+						"sap_belize_plus"
 					]
 				},
 				"sap.ui5": {
@@ -421,7 +423,9 @@
 					},
 					"supportedThemes": [
 						"sap_hcb",
-						"sap_bluecrystal"
+						"sap_bluecrystal",
+                      "sap_belize",
+                      "sap_belize_plus"
 					]
 				},
 				"sap.ui5": {
@@ -557,7 +561,9 @@
 					},
 					"supportedThemes": [
 						"sap_hcb",
-						"sap_bluecrystal"
+						"sap_bluecrystal",
+                      "sap_belize",
+                      "sap_belize_plus"
 					]
 				},
 				"sap.ui5": {
@@ -941,7 +947,9 @@
 					},
 					"supportedThemes": [
 						"sap_hcb",
-						"sap_bluecrystal"
+						"sap_bluecrystal",
+                      "sap_belize",
+                      "sap_belize_plus"
 					]
 				},
 				"sap.ui5": {
@@ -1077,7 +1085,9 @@
 					},
 					"supportedThemes": [
 						"sap_hcb",
-						"sap_bluecrystal"
+						"sap_bluecrystal",
+                      "sap_belize",
+                      "sap_belize_plus"
 					]
 				},
 				"sap.ui5": {
@@ -1213,7 +1223,9 @@
 					},
 					"supportedThemes": [
 						"sap_hcb",
-						"sap_bluecrystal"
+						"sap_bluecrystal",
+                      "sap_belize",
+                      "sap_belize_plus"
 					]
 				},
 				"sap.ui5": {
