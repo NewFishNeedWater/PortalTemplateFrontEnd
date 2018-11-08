@@ -44,7 +44,7 @@ sap.ui.define([
 		init: function() {
 
 		    //TODO remove it when deploy to SCP
-            /*sap.ushell.Container = {
+          /*  sap.ushell.Container = {
                 getUser: function () {
 
                     return {
