@@ -66,7 +66,7 @@ sap.ui.define([
                 this.setModel(this.getOwnerComponent().getListModel());
 			}
 
-            oView.byId("infoServiceCategorySelect").attachChange(function(oEvent){
+           /* oView.byId("infoServiceCategorySelect").attachChange(function(oEvent){
             	console.log('Change:' + oEvent);
 			});
             oView.byId("infoIncidentCategorySelect").attachChange(function(oEvent){
@@ -77,7 +77,7 @@ sap.ui.define([
                 var sProperty = e.getParameter("path").split("/").length > 0 ? e.getParameter("path").split("/")[0] : "";
                 var proper = e.getSource().getProperty("/" + sProperty);
                 this.dirty = true;
-            }, this);
+            }, this);*/
 
 
 			this.app.setBusyIndicatorDelay(0);
@@ -183,7 +183,7 @@ sap.ui.define([
 			if (!this.getOwnerComponent().mockData) {
                 var baseID = this.getModel().getObject(sPath).ObjectID;
 				var url = UtilityHandler.getHost()+ '/postServiceRequestDescription';
-				//this.app.setBusy(true);
+				this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
 				jQuery.ajax({
@@ -294,7 +294,7 @@ sap.ui.define([
 				model.refresh(true);
 				this._setEditMode(false);
 			} else {
-				// this.app.setBusy(true);
+				this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
 				// var sPath = view.getElementBinding().getPath(),
@@ -384,7 +384,7 @@ sap.ui.define([
                     this.fileToUpload = null;
                     return;
                 }
-                //this.app.setBusy(true);
+                this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
                 var fileReader = new FileReader();

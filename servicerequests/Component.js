@@ -51,7 +51,6 @@ sap.ui.define([
                 },
             };
 
-            this.utilityHandler = new UtilityHandler();
 			//this.oListSelector = new ListSelector();
 			this.startupParams = this.receiveStartupParams();
 
