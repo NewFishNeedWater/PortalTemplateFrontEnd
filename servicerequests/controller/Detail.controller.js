@@ -65,6 +65,21 @@ sap.ui.define([
                 this._initMetaData();
                 this.setModel(this.getOwnerComponent().getListModel());
 			}
+
+            oView.byId("infoServiceCategorySelect").attachChange(function(oEvent){
+            	console.log('Change:' + oEvent);
+			});
+            oView.byId("infoIncidentCategorySelect").attachChange(function(oEvent){
+                console.log('Change:' + oEvent);
+            });
+
+            this.getView().getModel().attachPropertyChange(function(e) {
+                var sProperty = e.getParameter("path").split("/").length > 0 ? e.getParameter("path").split("/")[0] : "";
+                var proper = e.getSource().getProperty("/" + sProperty);
+                this.dirty = true;
+            }, this);
+
+
 			this.app.setBusyIndicatorDelay(0);
 			oView.setBusyIndicatorDelay(0);
 			if (isMock) {
@@ -615,6 +630,9 @@ sap.ui.define([
 			var oView = this.getView(),
 				oElementBinding = oView.getElementBinding();
 			var isMock = this.getOwnerComponent().mockData;
+			// Clear incident model
+            var incidentModel = oView.getModel("IncidentModel");
+            incidentModel.setData({results: []});
 			if (!isMock || (isMock && this.mockModelLoaded)) {
 				this.getIncidentCategoryListWrap();
 			}
