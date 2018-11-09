@@ -4,6 +4,9 @@ sap.ui.define([
     "sap/m/MessageBox",
 ], function (UI5Object, FilterOperator, MessageBox) {
     "use strict";
+    /**
+     * Utility Class for get/post data from/to back-end server, as well as information/data processing.
+     */
 
     var UtilityHandler = UI5Object.extend("ServiceRequests.controller.UtilityHandler", {
 
@@ -46,6 +49,14 @@ sap.ui.define([
             });
         },
 
+        /**
+         * Utility method: Read data from server and return Promise
+         * @param {string}baseURL
+         * @param {object}oSettings
+         *         ----{function} success: success call back method
+         *         ----{function} error: error call back method
+         *         ----{array} filters: filter table
+         */
         getModelReadPromise: function (baseURL, oSettings) {
             var url = UtilityHandler.getHost() + baseURL;
             if (this._checkURLWithCondition(oSettings)) {
@@ -74,10 +85,9 @@ sap.ui.define([
         },
 
         /**
-         * Check if the url should has conditions
+         * @private Check if the url should has conditions
          * @param oSettings
          * @returns {boolean}
-         * @private
          */
         _checkURLWithCondition: function (oSettings) {
             if (!oSettings) {
@@ -89,6 +99,11 @@ sap.ui.define([
             return false;
         },
 
+        /**
+         * @private Converting the Filters into Complete URI value: URI parameters
+         * @param oSettings
+         * @returns {string} baseURL + URL parameters
+         */
         _setURLByFilters: function (baseURL, filters) {
             if (!filters || filters.length === 0) {
                 return baseURL;
@@ -108,13 +123,22 @@ sap.ui.define([
     });
 
     //TODO change id to SCP destination
+    /**
+     * Utility method to get the HOST URI
+     * @returns {string}
+     */
     UtilityHandler.getHost = function () {
         //for local test
-        //return "http://127.0.0.1:4002/client";
-        return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
+        return "http://127.0.0.1:4002/client";
+        //return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
         //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
+    /**
+     * Utility method to format date from miliseconds format: {/Date(XXXXXX)} to display format on UI.
+     * @param rawValue
+     * @returns {Date}
+     */
     UtilityHandler.getDate = function (rawValue) {
         if (typeof rawValue === 'string') {
             // In case string type raw date value
@@ -132,8 +156,13 @@ sap.ui.define([
         }
     };
 
+    /**
+     * Utility Method to get C4C Contact
+     * @param fnSuccess
+     * @param fnError
+     * @param sUserEmail
+     */
     UtilityHandler.getC4CContact = function (fnSuccess, fnError, sUserEmail) {
-
         var url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + sUserEmail;
         $.ajax({
             method: "GET",
@@ -145,15 +174,14 @@ sap.ui.define([
 
 
     /**
-     * @public: Utility method, converting response from server to error message
-     * @param jqXHR
+     * @public: Utility method, converting response from server error info object to error message
+     * @param {object} jqXHR
      * @returns {string} error message
      *
      */
     UtilityHandler.getErrorMessageFromErrorResponse = function (jqXHR) {
         var errorUnion;
         if(jqXHR && jqXHR.responseText){
-
             if(jqXHR.responseText.getElementsByTagName && jqXHR.responseText.getElementsByTagName("message")) {
                 errorUnion = jqXHR.responseText.getElementsByTagName("message");
                 if (typeof errorUnion === 'string') {
@@ -179,10 +207,24 @@ sap.ui.define([
         }
     };
 
+    /**
+     * Wrapper method when exception happens in post/get data from back-end
+     * @param {object} jqXHR
+     */
     UtilityHandler.onErrorDataReadWrap = function (jqXHR) {
         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
         if(errorMessage){
             MessageBox.error(errorMessage);
+        }
+    };
+
+    /**
+     * Wrapper method when error message is founded in success returned data from back-end
+     * @param {object} oError
+     */
+    UtilityHandler.raiseErrorMessageWrap = function(oError){
+        if(oError.message && oError.message.value){
+            MessageBox.error(oError.message.value);
         }
     };
 

@@ -24,10 +24,6 @@ sap.ui.define([
                     iOriginalBusyDelay = this.getView().getBusyIndicatorDelay();
 
                 this.utilityHandler = new UtilityHandler();
-                this.getServiceCategoryPromise();
-                this.getProductCollectionPromise();
-                this.getServiceRequestServicePriorityCodePromise();
-
 
                 oViewModel = new JSONModel({
                     busy: true,
@@ -151,7 +147,7 @@ sap.ui.define([
                         filters: this.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
                         success: function(oData) {
                             if(oData && oData.error){
-                                this._onErrorMessageFound(oData.error);
+                                UtilityHandler.onErrorDataReadWrap(oData.error);
                             }else{
                                 _self._initIncidentModel(oData, incidentCategoryControl, incidentModel);
                                 if(fnSuccessCallBack && typeof  fnSuccessCallBack === 'function'){
@@ -171,11 +167,6 @@ sap.ui.define([
                 }
             },
 
-            _onErrorMessageFound: function(oError){
-                if(oError.message && oError.message.value){
-                    MessageBox.error(oError.message.value);
-                }
-            },
 
             _initIncidentModel: function (data, incidentCategoryControl, incidentModel) {
                 incidentModel.setData({results: data});

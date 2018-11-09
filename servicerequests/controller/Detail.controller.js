@@ -80,15 +80,13 @@ sap.ui.define([
          */
 		_initMetaData:function(){
             var oView = this.getView();
-			var that = this;
 			var oServiceRequestData = {};
-            var oModel = new JSONModel();
             oView.setModel(new JSONModel({results: []}), "IncidentModel");
 
             var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 if(oData && oData.error){
-                    this._onErrorMessageFound(oData.error);
+                    UtilityHandler.raiseErrorMessageWrap(oData.error);
                 }else{
                     oServiceRequestData.ServiceRequestServicePriorityCodeCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
@@ -101,7 +99,7 @@ sap.ui.define([
             var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
             serviceCategoryPromise.then(function(oData){
                 if(oData && oData.error){
-                    this._onErrorMessageFound(oData.error);
+                    UtilityHandler.raiseErrorMessageWrap(oData.error);
                 }else{
                     oServiceRequestData.ServiceIssueCategoryCatalogueCategoryCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
@@ -115,7 +113,7 @@ sap.ui.define([
             var productionPromise = this.appController.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 if(oData && oData.error){
-                    this._onErrorMessageFound(oData.error);
+                    UtilityHandler.raiseErrorMessageWrap(oData.error);
                 }else{
                     oServiceRequestData.ProductCollection = oData;
                     oView.setModel(new JSONModel(oServiceRequestData), "ServiceRequest");
@@ -127,7 +125,7 @@ sap.ui.define([
 		},
 
         /**
-		 * @private Set selected value of UI Dropdown:'infoServiceCategorySelect' from model.
+		 * @private Set selected value of UI drop-down:'infoServiceCategorySelect' from model.
          */
 		_selectInfoService: function() {
 			var oView = this.getView(),
@@ -144,25 +142,11 @@ sap.ui.define([
 			oView.byId("infoServiceCategorySelect").setSelectedKey(selectedKey);
 		},
 
-		//TODO obosolete method, could be delete
-		infoPriorityReceived: function(oData) {
-			var hiddenPriorityCodes = this.getOwnerComponent().getManifest()['sap.cloud.portal'].settings.hiddenPriorityCodes,
-				//priorityData = oData.results,
-                priorityData = oData,
-				filteredPriorityData = [];
-			if (hiddenPriorityCodes) {
-				for (var i = 0; i < priorityData.length; i++) {
-					if (hiddenPriorityCodes.indexOf(parseInt(priorityData[i].Code)) === -1) {
-						filteredPriorityData.push(priorityData[i]);
-					}
-				}
-			}
-			var lifeCycleModel = new JSONModel({filteredResults: filteredPriorityData, results: priorityData}),
-				oView = this.getView();
-			oView.setModel(lifeCycleModel, "LifeCycleModel");
-		},
 
-		//TODO: check wethear it is needed to set to busy manually
+        /**
+		 * Batch set drop-down plugins busy status, Only for mock data
+         * @param val
+         */
 		setSelectsToBusy: function(val) {
 			var oView = this.getView();
 			oView.byId("infoPrioritySelect").setBusy(val);
@@ -191,9 +175,6 @@ sap.ui.define([
 					url: url,
 					method: "POST",
 					contentType: "application/json",
-					// headers: {
-					// 	"X-CSRF-TOKEN": token
-					// },
 					data: JSON.stringify({
 						TypeCode: "10008",
 						AuthorUUID: authorUUID,
@@ -202,7 +183,7 @@ sap.ui.define([
 					}),
 					success: function(oData) {
                         if(oData && oData.error){
-                            this._onErrorMessageFound(oData.error);
+                            UtilityHandler.raiseErrorMessageWrap(oData.error);
                         }
 						this.loadTicketDetail();
 					}.bind(this),
@@ -311,7 +292,7 @@ sap.ui.define([
 					data: JSON.stringify(patch),
 					success: function(oData) {
                         if(oData && oData.error){
-                            this._onErrorMessageFound(oData.error);
+                            UtilityHandler.raiseErrorMessageWrap(oData.error);
                         }else{
                         	MessageToast.show("The service request was updated successfully");
 						}
@@ -351,16 +332,14 @@ sap.ui.define([
                 data: JSON.stringify(patch),
                 success: function(oData) {
                     if(oData && oData.error){
-                        this._onErrorMessageFound(oData.error);
+                        UtilityHandler.raiseErrorMessageWrap(oData.error);
                     }else{
-                        // TODO check the error message
                         MessageToast.show("The service request was set to completed");
                     }
                     this.getModel().refresh();
                 }.bind(this),
                 error: function(jqXHR) {
                     var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                    // TODO check the error message
                     var error = errorMessage?errorMessage:'Data save failure!';
                     MessageBox.error(error);
                 },
@@ -429,7 +408,7 @@ sap.ui.define([
                         view.byId("fileUploader").clear();
                         this.fileToUpload = null;
                         if(oData && oData.error){
-                            this._onErrorMessageFound(oData.error);
+                            UtilityHandler.raiseErrorMessageWrap(oData.error);
                         }else{
                             MessageToast.show("The attachment was uploaded successfully");
                         }
@@ -437,7 +416,6 @@ sap.ui.define([
                     }.bind(this),
                     error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                        //TODO checking error message?
                         var error = errorMessage ? errorMessage : 'the attachment could not be uploaded';
                         MessageBox.error(error);
                     },
@@ -479,7 +457,7 @@ sap.ui.define([
                 contentType: "application/json",
                 success: function(oData) {
                 	if(oData && oData.error){
-                		this._onErrorMessageFound(oData.error);
+                        UtilityHandler.raiseErrorMessageWrap(oData.error);
 					}else{
                 		// Refresh model of Detailed Editor page.
                         model.setProperty(sPath, oData);
@@ -506,26 +484,6 @@ sap.ui.define([
 		},
 
         /**
-		 * TODO: TO migrate this to utility method?
-		 * @private Utility method: using messagebox to raise message
-         * @param oError
-         *
-         */
-		_onErrorMessageFound: function(oError){
-            if(oError.message && oError.message.value){
-                MessageBox.error(oError.message.value);
-			}
-		},
-
-        /**
-		 * Handler method when 'Service Category' is selected as parent object, then 'incident category' will be refreshed with new metadata.
-         */
-		onServiceCategorySelect: function() {
-			this.getIncidentCategoryListWrap();
-		},
-
-
-        /**
 		 * @private local utility method: initialize JSON model of 'incident' and binding to UI plugin: "infoIncidentCategorySelect"
          * @param {array} data
          */
@@ -538,13 +496,12 @@ sap.ui.define([
 		},
 
 
-		onErrorIncidentModel: function(jqXHR) {
-            var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-            if(errorMessage){
-                MessageBox.error(errorMessage);
-            }
-			this.getView().byId("infoIncidentCategorySelect").setBusy(false);
-		},
+        /**
+         * Handler method when 'Service Category' is selected as parent object, then 'incident category' will be refreshed with new metadata.
+         */
+        onServiceCategorySelect: function() {
+            this.getIncidentCategoryListWrap();
+        },
 
         getIncidentCategoryListWrap: function(){
             var oView = this.getView(),
@@ -561,8 +518,6 @@ sap.ui.define([
                 });
 			}
 		},
-
-
 
 
 		/* =========================================================== */
@@ -596,11 +551,7 @@ sap.ui.define([
 				}
 				this._bindView("/ServiceRequestCollection/" + i);
 			} else {
-                this.getModel().attachRequestCompleted(function() {
-                    this.sObjectId = sObjectId;
-                    // this.getRouter().navTo("object", {
-                    //     objectId: sObjectId
-                    // }, true);
+                this.getModel().attachRequestCompleted(function(mPara) {
                     this._bindViewWithObjectId(sObjectId);
 				}.bind(this));
                 this._bindViewWithObjectId(sObjectId);
@@ -670,7 +621,8 @@ sap.ui.define([
 
 			// No data for the binding
 			if (!oElementBinding.getBoundContext()) {
-				this.getRouter().getTargets().display("detailObjectNotFound");
+                this.getRouter().navTo("nodata");
+				// this.getRouter().getTargets().display("detailObjectNotFound");
 				// if object could not be found, the selection in the master list
 				// does not make sense anymore.
 				// this.getOwnerComponent().oListSelector.clearMasterListSelection();

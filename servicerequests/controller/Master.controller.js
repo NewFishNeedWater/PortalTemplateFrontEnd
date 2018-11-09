@@ -91,7 +91,7 @@ sap.ui.define([
 		},
 
         /**
-		 * Get Service request list data from back-end
+		 * Core logic of getting Service request list data from back-end
          * @param model
          * @param fnComplete
          */
@@ -114,9 +114,11 @@ sap.ui.define([
                         });
                         model.setData({"ServiceRequestCollection":result});
                         model.refresh();
+                        var oItem = this._oList.getItems() && this._oList.getItems().length > 0 ? this._oList.getItems()[0]: undefined;
                         model.fireRequestCompleted({
                             statusCode:200,
-                            list:this._oList
+                            list:this._oList,
+                            firstListitem: oItem
                         });
                     }else{
                     	// In case empty data
@@ -183,16 +185,7 @@ sap.ui.define([
             	// In case NOT mock data
                 var model = this.getOwnerComponent().getListModel(model);
                 this.getServiceRequestListBackend(model);
-                //this._oErrorHandler = new ErrorHandler(this);
             }
-		},
-
-        /**
-		 * Handler method before Rendering the master view
-         */
-		onBeforeRendering: function() {
-			this.getC4CContact();
-			this.setListFilters();
 		},
 
         /**
@@ -219,10 +212,25 @@ sap.ui.define([
 			UtilityHandler.getC4CContact(fnSuccess,fnError,sUserEmail);
 		},
 
+
+		/* =========================================================== */
+		/* event handlers                                              */
+		/* =========================================================== */
+
         /**
-         * Handler method when 'Service Category' is selected as parent object, then 'incident category' will be refreshed with new metadata.
+         * Handler method before the master view is rendered.
          */
-		onServiceCategorySelectCreateFragment: function() {
+        onBeforeRendering: function() {
+            this.getC4CContact();
+            this.setListFilters();
+        },
+
+        /**
+         * Handler method when drop-down plugin 'Service Category' is selected.
+         * which is the parent object for drop-down plugin: 'incident category', then the metadata for 'incident category' will
+         * be loaded and default value will be set for drop-down plugin: 'incident category'.
+         */
+        onServiceCategorySelectCreateFragment: function() {
             var createServiceSelect = sap.ui.getCore().byId("createServiceCategory");
             this.appController.getIncidentCategoryList({
                 parentObject:createServiceSelect.getSelectedItem().data("parentObject"),
@@ -230,13 +238,8 @@ sap.ui.define([
                 incidentCategoryControl: sap.ui.getCore().byId("createIncidentCategory"),
                 serviceRequestMockData:this.oDialog.getModel("ServiceRequest").getData(),
                 incidentModel:this.oDialog.getModel("IncidentModel")
-			});
-		},
-
-
-		/* =========================================================== */
-		/* event handlers                                              */
-		/* =========================================================== */
+            });
+        },
 
 		/**
 		 * After list data is available, this handler method updates the
@@ -257,8 +260,8 @@ sap.ui.define([
                 //     self.openNewTicketParam();
                 // });
 				// Nav to error page with 'No data' warning message
-				// TODO add openNewTicketParam logic here
 				this.getRouter().navTo("nodata");
+                self.openNewTicketParam();
             }
             else {
             	// Set selected as first item and nav to detail message
@@ -314,7 +317,7 @@ sap.ui.define([
 		},
 
 		/**
-		 * Event handler for refresh event. Keeps filter, sort
+		 * Event handler for refresh list panel. Keeps filter, sort
 		 * and group settings and refreshes the list binding.
 		 * @public
 		 */
@@ -369,7 +372,7 @@ sap.ui.define([
 		},
 
         /**
-		 * Event handler method to add new
+		 * Event handler method to add new ticket
          * @param context
          */
 		onAdd: function(context) {
@@ -431,43 +434,50 @@ sap.ui.define([
          * @private
          */
         _initMetaData:function(oServiceRequestModel){
-            // var incidentModelPromise = this.getOwnerComponent().getIncidentModelPromise();
-            var incidentModelPromise = this.appController.getIncidentModelPromise();
-            incidentModelPromise.then(function(oData){
-                oServiceRequestModel.IncidentModel = oData;
-                this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
-            }.bind(this)).catch(function(oError){
-                // Catch exceptions:
-                UtilityHandler.onErrorDataReadWrap(oError);
-            }.bind(this));
-            // var serviceRequestServicePriorityPromise = this.getOwnerComponent().getServiceRequestServicePriorityCodePromise();
             var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
-                oServiceRequestModel.ServiceRequestServicePriorityCodeCollection = oData;
-                this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+                if(oData && oData.error){
+                    UtilityHandler.raiseErrorMessageWrap(oData.error);
+                }else{
+                    oServiceRequestModel.ServiceRequestServicePriorityCodeCollection = oData;
+                    this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+                }
             }.bind(this)).catch(function(oError){
                 // Catch exceptions:
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
+
 			var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
             serviceCategoryPromise.then(function(oData){
-                oServiceRequestModel.ServiceIssueCategoryCatalogueCategoryCollection = oData;
-                this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+                if(oData && oData.error){
+                    UtilityHandler.raiseErrorMessageWrap(oData.error);
+                }else{
+                    oServiceRequestModel.ServiceIssueCategoryCatalogueCategoryCollection = oData;
+                    this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+                }
             }.bind(this)).catch(function(oError){
                 // Catch exceptions:
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
-            // var productionPromise = this.getOwnerComponent().getProductCollectionPromise();
+
             var productionPromise = this.appController.getProductCollectionPromise();
             productionPromise.then(function(oData){
-                oServiceRequestModel.ProductCollection = oData;
-                this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+                if(oData && oData.error){
+                    UtilityHandler.raiseErrorMessageWrap(oData.error);
+                }else{
+                    oServiceRequestModel.ProductCollection = oData;
+                    this.oDialog.setModel(new JSONModel(oServiceRequestModel), "ServiceRequest");
+                }
             }.bind(this)).catch(function(oError){
                 // Catch exceptions:
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
         },
 
+        /**
+         * Event hanlder when creation dialog is open.
+         * @param context
+         */
 		onDialogOpen: function(context) {
 			var serviceCategorySelect = sap.ui.getCore().byId("createServiceCategory"),
 				incidentCategorySelect = sap.ui.getCore().byId("createIncidentCategory");
@@ -520,7 +530,6 @@ sap.ui.define([
                     },
                     error: this.onIncidentFailed.bind(this)
                 });
-
 			}
 		},
 
@@ -531,6 +540,10 @@ sap.ui.define([
 			sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
 		},
 
+        /**
+         * Local Event handler method: when 'Incident Category' is loaded failure.
+         * @param jqXHR
+         */
 		onIncidentFailed: function(jqXHR) {
             var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
             if(errorMessage){
@@ -539,12 +552,16 @@ sap.ui.define([
 			this.getView().byId("createIncidentCategory").setBusy(false);
 
 		},
-		onDialogAdd: function() {
+
+        /**
+         * Event handler method: Confirm on creation UI to create new ticket to back-end
+         */
+        onDialogAdd: function() {
 			this.createTicket();
 		},
 
         /**
-         * Event handler when new file is uploaded
+         * Event handler when new attachment file is uploaded
          * @param oEvent
          */
 		onFileChange: function(oEvent) {
@@ -705,8 +722,6 @@ sap.ui.define([
 			this.oDialog.setBusy(true);
 			if (!this.mockData) {
 				var model = view.getModel();
-				//url = UtilityHandler.getHost() + "/ServiceRequestCollection",
-					// token = model.getSecurityToken();
 				var url = UtilityHandler.getHost()+'/postServiceRequests';
 				jQuery.ajax({
 					url: url,
@@ -716,7 +731,7 @@ sap.ui.define([
 					success: this.setTicketDescription.bind(this),
 					error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                        var error = errorMessage?errorMessage:'Data can not be created!';
+                        var error = errorMessage?errorMessage:'Ticket can not be created!';
 						MessageBox.error(error);
 						this.oDialog.setBusy(false);
 					}.bind(this)
@@ -738,23 +753,21 @@ sap.ui.define([
 				s4() + s4() + s4() + s4();
 		},
 
+        /**
+		 * Core Logic of Post description to back-end server.
+         * @param {object} result
+         */
 		setTicketDescription: function(result) {
 			if (!this.mockData) {
 				var model = this.getModel(),
 					authorUUID = this.component.contactUUID;
-					// elm = result.getElementsByTagName("id")[0],
-					// baseUrl = elm.innerHTML || elm.textContent,
 					var baseID = result.ObjectID;
 					var url = UtilityHandler.getHost()+"/postServiceRequestDescription",
 					text = sap.ui.getCore().byId("createDescription").getValue();
-					//token = model.getSecurityToken();
 				jQuery.ajax({
 					url: url,
 					method: "POST",
 					contentType: "application/json",
-					// headers: {
-					// 	"X-CSRF-TOKEN": token
-					// },
 					data: JSON.stringify({
                         baseID: baseID,
                         AuthorUUID: authorUUID,
@@ -784,6 +797,8 @@ sap.ui.define([
 				this.uploadAttachment(result);
 			}
 		},
+
+
 		uploadAttachment: function(result) {
 			if (this.fileToUpload) {
 				var fileReader = new FileReader();
@@ -795,13 +810,15 @@ sap.ui.define([
 				this.finishCreateTicket(result);
 			}
 		},
+
+        /**
+         * Core Logic to upload attachment file to back-end server.
+         * @param e
+         * @param result
+         */
 		uploadFile: function(e, result) {
 			var model = this.getModel();
 			if (!this.mockData) {
-				// var elmMock = result.getElementsByTagName("id")[0],
-				// 	baseUrl = elmMock.innerHTML || elmMock.textContent,
-				// 	url = baseUrl + "/ServiceRequestAttachmentFolder",
-				// 	token = model.getSecurityToken();
 				var dataMock = {
 					Name: this.fileToUpload.name,
 					Binary: window.btoa(e.target.result),
@@ -812,17 +829,10 @@ sap.ui.define([
 					url: url,
 					method: "POST",
 					contentType: "application/json",
-					// headers: {
-					// 	"X-CSRF-TOKEN": token
-					// },
 					data: JSON.stringify(dataMock),
 					success: this.finishCreateTicket.bind(this),
 					error: function(jqXHR) {
                         var error = 'The service request was created successfully, but the attachment could not be uploaded';
-                        // if( jqXHR.responseXML && jqXHR.responseXML.getElementsByTagName("message") ){
-                        //     var elm = jqXHR.responseXML.getElementsByTagName("message")[0];
-                        //     error = "The service request was created successfully, but the attachment could not be uploaded: " + elm.innerHTML || elm.textContent;
-                        // }
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
                         var error = errorMessage?errorMessage:error;
 						MessageBox.error(error);
@@ -843,7 +853,7 @@ sap.ui.define([
 		},
 
         /**
-		 * After
+		 * Common logic on UI: After ticket has finished creation, show success message and close the dialog
          * @param data
          */
 		finishCreateTicket: function(data) {
@@ -865,6 +875,9 @@ sap.ui.define([
 			}
 		},
 
+        /**
+		 * Refresh the List panel of all Service requests with retrieving data from back-end.
+         */
         refreshServiceRequestList: function(){
             var oListView = this.byId("list");
             oListView.setBusy(true);
@@ -1041,21 +1054,26 @@ sap.ui.define([
 		 */
 		_onMasterMatched: function() {
 
-            this.getModel().attachRequestCompleted(function(mParams) {
-                if (mParams.list.getMode() === "None") {
+            this.getModel().attachRequestCompleted(function(mPara) {
+            	var oList = mPara.getParameter("list");
+                if (!oList || oList.getMode() === "None") {
                     return;
                 }
-                var sObjectId = mParams.firstListitem.getBindingContext().getProperty("ObjectID");
-                this.getRouter().navTo("object", {
-                    objectId: sObjectId
-                }, true);
+                var oFirstListitem = mPara.getParameter("firstListitem");
+                if(oFirstListitem){
+                    var sObjectId = oFirstListitem.getBindingContext().getProperty("ObjectID");
+                    this.getRouter().navTo("object", {
+                        objectId: sObjectId
+                    }, true);
+				}
             }.bind(this));
 
             this.getModel().attachRequestFailed(function(mParams) {
                 if (mParams.error) {
                     return;
                 }
-                this.getRouter().getTargets().display("detailNoObjectsAvailable");
+                this.getRouter().navTo("nodata");
+                // this.getRouter().getTargets().display("detailNoObjectsAvailable");
                 this.app.setBusy(false);
             }.bind(this));
 
