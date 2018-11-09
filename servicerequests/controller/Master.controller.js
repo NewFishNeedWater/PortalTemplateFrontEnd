@@ -507,18 +507,20 @@ sap.ui.define([
 		serviceCategoryLoaded: function(oEvent) {
 		    var that = this;
 			var serviceRequestModel = this.oDialog.getModel("ServiceRequest");
+			var incidentModel = this.oDialog.getModel("IncidentModel");
+			var incidentCategoryControl = sap.ui.getCore().byId("createIncidentCategory");
 			if (this.getOwnerComponent().mockData) {
 
 				var mockModelData = this.oDialog.getModel("ServiceRequest").getData(),
-					parentObject = mockModelData.ServiceIssueCategoryCatalogueCategoryCollection[0].ParentObjectID,
-					incidentModel = mockModelData.IncidentModel;
-				this.onIncidentLoaded(incidentModel[parentObject]);
+					parentObject = mockModelData.ServiceIssueCategoryCatalogueCategoryCollection[0].ParentObjectID;
+				incidentModel = mockModelData.IncidentModel;
+                this.appController.initIncidentModel(incidentModel[parentObject], incidentCategoryControl, incidentModel);
 			} else {
                 var selectedData,ParentObjectID,TypeCode;
 			    if(oEvent){
                     selectedData = oEvent.oSource.getSelectedItem().data();
                 }else{
-                    selectedData = sap.ui.getCore().byId("createServiceCategory").getSelectedItem().data();
+                    selectedData = incidentCategoryControl.getSelectedItem().data();
                 }
                 ParentObjectID = selectedData.parentObject;
                 TypeCode = selectedData.typeCode;
@@ -526,19 +528,19 @@ sap.ui.define([
                 this.utilityHandler.oModelRead(serviceRequestModel,'/getIncidentCategory', {
                     filters: this.getOwnerComponent().createIncidentCategoryFilters(ParentObjectID, TypeCode),
                     success: function(oData){
-                        that.initIncidentModel(oData);
+                        this.appController.initIncidentModel(oData, incidentCategoryControl, incidentModel);
                     },
                     error: this.onIncidentFailed.bind(this)
                 });
 			}
 		},
 
-		onIncidentLoaded: function(oData) {
-			var incidentModel = this.oDialog.getModel("IncidentModel");
-			incidentModel.setData(oData);
-			incidentModel.refresh();
-			sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
-		},
+		// onIncidentLoaded: function(oData) {
+		// 	var incidentModel = this.oDialog.getModel("IncidentModel");
+		// 	incidentModel.setData(oData);
+		// 	incidentModel.refresh();
+		// 	sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
+		// },
 
         /**
          * Local Event handler method: when 'Incident Category' is loaded failure.
@@ -731,7 +733,7 @@ sap.ui.define([
 					success: this.setTicketDescription.bind(this),
 					error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                        var error = errorMessage?errorMessage:'Ticket can not be created!';
+                        var error = errorMessage?errorMessage:'The Ticket could not be created.';
 						MessageBox.error(error);
 						this.oDialog.setBusy(false);
 					}.bind(this)

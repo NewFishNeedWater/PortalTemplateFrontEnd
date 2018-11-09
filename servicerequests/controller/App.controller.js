@@ -141,7 +141,7 @@ sap.ui.define([
                 if (cmpt.mockData) {
                     // var mockModelData = this.oDialog.getModel("ServiceRequest").getData();
                     incidentModel = serviceRequestMockData.IncidentModel;
-                    this._initIncidentModel(incidentModel[parentObject], incidentCategoryControl, incidentModel);
+                    this.initIncidentModel(incidentModel[parentObject], incidentCategoryControl, incidentModel);
                 } else {
                     this.utilityHandler.oModelRead(oModel, '/getServiceCategory', {
                         filters: this.getOwnerComponent().createIncidentCategoryFilters(parentObject, typeCode),
@@ -149,7 +149,7 @@ sap.ui.define([
                             if(oData && oData.error){
                                 UtilityHandler.onErrorDataReadWrap(oData.error);
                             }else{
-                                _self._initIncidentModel(oData, incidentCategoryControl, incidentModel);
+                                _self.initIncidentModel(oData, incidentCategoryControl, incidentModel);
                                 if(fnSuccessCallBack && typeof  fnSuccessCallBack === 'function'){
                                     // In case Metadata is loaded success, call call back
                                     fnSuccessCallBack();
@@ -168,7 +168,7 @@ sap.ui.define([
             },
 
 
-            _initIncidentModel: function (data, incidentCategoryControl, incidentModel) {
+            initIncidentModel: function (data, incidentCategoryControl, incidentModel) {
                 incidentModel.setData({results: data});
                 incidentModel.refresh();
                 incidentCategoryControl.setBusy(false);

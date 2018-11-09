@@ -204,7 +204,7 @@ sap.ui.define([
 					}.bind(this),
 					error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
-                        var error = errorMessage?errorMessage:'Data save failure!';
+                        var error = errorMessage?errorMessage:'The ticket could not be saved';
 						MessageBox.error(error);
 					},
 					complete: function() {
