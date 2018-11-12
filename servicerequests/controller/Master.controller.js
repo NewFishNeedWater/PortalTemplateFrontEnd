@@ -527,13 +527,6 @@ sap.ui.define([
 			}
 		},
 
-		// onIncidentLoaded: function(oData) {
-		// 	var incidentModel = this.oDialog.getModel("IncidentModel");
-		// 	incidentModel.setData(oData);
-		// 	incidentModel.refresh();
-		// 	sap.ui.getCore().byId("createIncidentCategory").setBusy(false);
-		// },
-
         /**
          * Local Event handler method: when 'Incident Category' is loaded failure.
          * @param jqXHR

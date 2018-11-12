@@ -632,6 +632,7 @@ sap.ui.define([
 			var isMock = this.getOwnerComponent().mockData;
 			// Clear incident model
             var incidentModel = oView.getModel("IncidentModel");
+            // Important, everytime when navigation change, should clear incident model meta data
             incidentModel.setData({results: []});
 			if (!isMock || (isMock && this.mockModelLoaded)) {
 				this.getIncidentCategoryListWrap();

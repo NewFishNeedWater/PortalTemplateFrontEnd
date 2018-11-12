@@ -168,6 +168,12 @@ sap.ui.define([
             },
 
 
+            /**
+             * Set Meta data for 'incident model' and refresh dropdown plugin
+             * @param data
+             * @param incidentCategoryControl
+             * @param incidentModel
+             */
             initIncidentModel: function (data, incidentCategoryControl, incidentModel) {
                 incidentModel.setData({results: data});
                 incidentModel.refresh();
