@@ -46,6 +46,8 @@ sap.ui.define([
 			// Class attributes for error message
 			// Indicator wheather the ticket list error message is open or not
             this._bListErrorMessageOpen = false;
+            this.app = this.component.getAggregation("rootControl");
+            this.appController = this.app.getController();
             this._oResourceBundle = this.component.getModel("i18n").getResourceBundle();
             this._sErrorText = this._oResourceBundle.getText("errorText");
 
@@ -55,8 +57,6 @@ sap.ui.define([
 			this.initServiceRequestList();
 			// Checking what's the use
 			var eventBus = sap.ui.getCore().getEventBus();
-			this.app = this.component.getAggregation("rootControl");
-			this.appController = this.app.getController();
 			eventBus.subscribe("Detail", "DetailHasRendered", function() {
 			});
 			this._oList = oList;
@@ -183,8 +183,11 @@ sap.ui.define([
                 this.setModel(model);
             } else {
             	// In case NOT mock data
+                this.app.setBusy(true);
                 var model = this.getOwnerComponent().getListModel(model);
-                this.getServiceRequestListBackend(model);
+                this.getServiceRequestListBackend(model, function(){
+                    this.app.setBusy(false);
+                }.bind(this));
             }
 		},
 
@@ -872,7 +875,6 @@ sap.ui.define([
             var model = this.getModel();
             this._oList.removeSelections();
             this.getServiceRequestListBackend(this.getOwnerComponent().getListModel(), function(){
-                var oListView = this.byId("list");
                 oListView.setBusy(false);
 			}.bind(this));
             model.refresh();
