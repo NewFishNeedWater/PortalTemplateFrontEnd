@@ -43,8 +43,6 @@ sap.ui.define([
 			this.setModel(oViewModel, "detailView");
 
             this.app = this.getOwnerComponent().getAggregation("rootControl");
-            this.appController = this.app.getController();
-            //this.getOwnerComponent().mockData= true;
 			var isMock = this.getOwnerComponent().mockData;
 			if (isMock) {
 				this._onMetadataLoaded();
@@ -63,22 +61,8 @@ sap.ui.define([
 			} else {
                 this._onMetadataLoaded();
                 this._initMetaData();
-                this.setModel(this.getOwnerComponent().getListModel());
+                this.setModel(this.getOwnerComponent().getModel("listModel"));
 			}
-
-           /* oView.byId("infoServiceCategorySelect").attachChange(function(oEvent){
-            	console.log('Change:' + oEvent);
-			});
-            oView.byId("infoIncidentCategorySelect").attachChange(function(oEvent){
-                console.log('Change:' + oEvent);
-            });
-
-            this.getView().getModel().attachPropertyChange(function(e) {
-                var sProperty = e.getParameter("path").split("/").length > 0 ? e.getParameter("path").split("/")[0] : "";
-                var proper = e.getSource().getProperty("/" + sProperty);
-                this.dirty = true;
-            }, this);*/
-
 
 			this.app.setBusyIndicatorDelay(0);
 			oView.setBusyIndicatorDelay(0);
@@ -98,7 +82,7 @@ sap.ui.define([
 			var oServiceRequestData = {};
             oView.setModel(new JSONModel({results: []}), "IncidentModel");
 
-            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
+            var serviceRequestServicePriorityPromise = this.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 if(oData && oData.error){
                     UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -111,7 +95,7 @@ sap.ui.define([
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 
-            var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
+            var serviceCategoryPromise = this.getServiceCategoryPromise();
             serviceCategoryPromise.then(function(oData){
                 if(oData && oData.error){
                     UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -125,7 +109,7 @@ sap.ui.define([
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 
-            var productionPromise = this.appController.getProductCollectionPromise();
+            var productionPromise = this.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 if(oData && oData.error){
                     UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -186,31 +170,30 @@ sap.ui.define([
 				this.app.setBusy(true);
                 var detailView = this.getModel("detailView");
                 detailView.setProperty("/busy", true);
-				jQuery.ajax({
-					url: url,
-					method: "POST",
-					contentType: "application/json",
-					data: JSON.stringify({
-						TypeCode: "10008",
-						AuthorUUID: authorUUID,
-						Text: text,
+                this.postHttpRequest({
+                    url: url,
+                    data: {
+                        TypeCode: "10008",
+                        AuthorUUID: authorUUID,
+                        Text: text,
                         baseID: baseID
-					}),
-					success: function(oData) {
+                    },
+                    success: function(oData) {
                         if(oData && oData.error){
                             UtilityHandler.raiseErrorMessageWrap(oData.error);
                         }
-						this.loadTicketDetail();
-					}.bind(this),
-					error: function(jqXHR) {
+                        this.loadTicketDetail();
+                    }.bind(this),
+                    error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
                         var error = errorMessage?errorMessage:'The ticket could not be saved';
-						MessageBox.error(error);
-					},
-					complete: function() {
-						this.app.setBusy(false);
-					}.bind(this)
+                        MessageBox.error(error);
+                    },
+                    complete: function() {
+                        this.app.setBusy(false);
+                    }.bind(this)
 				});
+
 			} else {
 				var serviceData = model.getData().ServiceRequestCollection[parseInt(view.getElementBinding().getPath().split("/")[2])].ServiceRequestDescription;
 				var user = sap.ushell.Container.getUser();
@@ -299,30 +282,30 @@ sap.ui.define([
                 detailView.setProperty("/busy", true);
 				// var sPath = view.getElementBinding().getPath(),
 				var url = UtilityHandler.getHost()+'/patchServiceRequests';
-				// token = model.getSecurityToken();
-				jQuery.ajax({
-					url: url,
-					method: "PATCH",
-					contentType: "application/json",
-					data: JSON.stringify(patch),
-					success: function(oData) {
+
+				this.postHttpRequest({
+                    url: url,
+                    data: patch,
+                    method: "PATCH",
+                    success: function(oData) {
                         if(oData && oData.error){
                             UtilityHandler.raiseErrorMessageWrap(oData.error);
                         }else{
-                        	MessageToast.show("The service request was updated successfully");
-						}
-						this.getModel().refresh();
-					}.bind(this),
-					error: function(jqXHR) {
+                            MessageToast.show("The service request was updated successfully");
+                        }
+                        this.getModel().refresh();
+                    }.bind(this),
+                    error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
                         var error = errorMessage?errorMessage:'Data save failure!';
-						MessageBox.error(errorMessage);
-					},
-					complete: function() {
-						// Refresh the detailed ticket in editor page.
+                        MessageBox.error(errorMessage);
+                    },
+                    complete: function() {
+                        // Refresh the detailed ticket in editor page.
                         this.loadTicketDetail();
-					}.bind(this)
+                    }.bind(this)
 				});
+
 			}
 		},
 
@@ -340,11 +323,10 @@ sap.ui.define([
 
             patch.baseID = this.getModel().getObject(sPath).ObjectID;
 
-            jQuery.ajax({
+            this.postHttpRequest({
                 url: url,
+                data: patch,
                 method: "PATCH",
-                contentType: "application/json",
-                data: JSON.stringify(patch),
                 success: function(oData) {
                     if(oData && oData.error){
                         UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -362,6 +344,7 @@ sap.ui.define([
                     this.loadTicketDetail();
                 }.bind(this)
             });
+
         },
 
 
@@ -414,11 +397,10 @@ sap.ui.define([
                     Binary: window.btoa(e.target.result),
                     baseID: baseID
                 };
-                jQuery.ajax({
+
+                this.postHttpRequest({
                     url: url,
-                    method: "POST",
-                    contentType: "application/json",
-                    data: JSON.stringify(dataMock),
+                    data: patch,
                     success: function(oData) {
                         view.byId("fileUploader").clear();
                         this.fileToUpload = null;
@@ -455,8 +437,6 @@ sap.ui.define([
             }
         },
 
-
-
         /**
 		 * Loading detailed ticket information from back-end and refresh the ticket editor page
          */
@@ -466,20 +446,19 @@ sap.ui.define([
                 model = view.getModel();
             var baseID = this.getModel().getObject(sPath).ObjectID;
             var url = UtilityHandler.getHost()+'/getServiceRequests?&ObjectID=\'' + baseID + '\'&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder';
-            jQuery.ajax({
+
+            this.getHttpRequest({
                 url: url,
-                method: "GET",
-                contentType: "application/json",
                 success: function(oData) {
-                	if(oData && oData.error){
+                    if(oData && oData.error){
                         UtilityHandler.raiseErrorMessageWrap(oData.error);
-					}else{
-                		// Refresh model of Detailed Editor page.
+                    }else{
+                        // Refresh model of Detailed Editor page.
                         model.setProperty(sPath, oData);
                         model.refresh(true);
                         this._populateDescriptionsList(sPath);
                         this._populateAttachmentsList(sPath);
-					}
+                    }
                 }.bind(this),
                 error: function(jqXHR) {
                     // var elm = jqXHR.responseText.getElementsByTagName("message")[0];
@@ -496,6 +475,7 @@ sap.ui.define([
                     this._setEditMode(false);
                 }.bind(this)
             });
+
 		},
 
         /**
@@ -523,7 +503,7 @@ sap.ui.define([
                 oSelectetedItem = oView.byId("infoServiceCategorySelect").getSelectedItem();
             var serviceRequestMockData = this.getOwnerComponent().mockData ? oView.getModel("MockModel").getData().ServiceRequest : null;
             if(oSelectetedItem){
-                this.appController.getIncidentCategoryList({
+                this.getIncidentCategoryList({
                     parentObject:oSelectetedItem.data("parentObject"),
                     typeCode: oSelectetedItem.data("typeCode"),
                     incidentCategoryControl: oView.byId("infoIncidentCategorySelect"),
@@ -644,11 +624,9 @@ sap.ui.define([
 				// this.getRouter().getTargets().display("detailObjectNotFound");
 				// if object could not be found, the selection in the master list
 				// does not make sense anymore.
-				// this.getOwnerComponent().oListSelector.clearMasterListSelection();
 				return;
 			}
 			var sPath = oElementBinding.getPath();
-			//this.getOwnerComponent().oListSelector.selectAListItem(sPath);
 			this._populateDescriptionsList(sPath);
 			this._populateAttachmentsList(sPath);
 		},

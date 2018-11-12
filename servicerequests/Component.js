@@ -4,10 +4,8 @@ sap.ui.define([
 	"sap/ui/model/odata/v2/ODataModel",
 	"sap/ui/model/json/JSONModel",
 	"ServiceRequests/model/models",
-	"ServiceRequests/controller/ListSelector",
-    "ServiceRequests/controller/UtilityHandler",
-    "ServiceRequests/controller/ErrorHandler"
-], function(UIComponent, Device, ODataModel, JSONModel, models, ListSelector,UtilityHandler ,ErrorHandler ) {
+    "ServiceRequests/controller/UtilityHandler"
+], function(UIComponent, Device, ODataModel, JSONModel, models, UtilityHandler ) {
 	"use strict";
 
 	return UIComponent.extend("ServiceRequests.Component", {
@@ -28,7 +26,15 @@ sap.ui.define([
 			ProductCategoryCollection: '/ProductCollection'
 		},
 
-		listModel:undefined,
+        /**
+		 * Functional Meta data for drop-down list on UI
+         */
+        functionMetaData: {
+            ServiceRequestServicePriorityCodeCollection: null,
+            ServiceIssueCategoryCatalogueCategoryCollection: null,
+            ProductCollection: null,
+            IncidentModel: null
+        },
 
 		/**
 		 * The component is initialized by UI5 automatically during the startup of the app and calls the init method once.
@@ -51,12 +57,9 @@ sap.ui.define([
                 },
             };
 
-			//this.oListSelector = new ListSelector();
-			this.startupParams = this.receiveStartupParams();
-
-            // set list model
+            // set list model for contain the service ticket list data
             var model = new JSONModel();
-            this.setListModel(model);
+            this.setModel(model, "listModel");
 
 			// set the device model
 			this.setModel(models.createDeviceModel(), "device");
@@ -68,55 +71,28 @@ sap.ui.define([
 			this.getRouter().initialize();
 		},
 
-		getListModel: function(){
-			return this.listModel;
-		},
-
-        setListModel: function(listModel){
-            this.listModel = listModel;
-        },
-
-        createIncidentCategoryFilters: function(parentObject, typeCode) {
-            return [
-                new sap.ui.model.Filter({
-                    path: "ParentObjectID",
-                    operator: sap.ui.model.FilterOperator.EQ,
-                    value1: parentObject
-                }),
-                new sap.ui.model.Filter({
-                    path: "TypeCode",
-                    operator: sap.ui.model.FilterOperator.EQ,
-                    value1: typeCode
-                })
-            ];
-        },
-
-
-
-		receiveStartupParams: function() {
-			var obj = {},
-				oComponentData = this.getComponentData && this.getComponentData();
-
-			if (oComponentData && oComponentData.startupParameters) {
-				var startupParameters = oComponentData.startupParameters;
-				obj.createNewTicket = startupParameters.createNewTicket && startupParameters.createNewTicket[0];
-				obj.highPriority = startupParameters.highPriority && startupParameters.highPriority[0];
-				obj.pendingResponse = startupParameters.pendingResponse && startupParameters.pendingResponse[0];
-			}
-
-			return obj;
-		},
+		// receiveStartupParams: function() {
+		// 	var obj = {},
+		// 		oComponentData = this.getComponentData && this.getComponentData();
+        //
+		// 	if (oComponentData && oComponentData.startupParameters) {
+		// 		var startupParameters = oComponentData.startupParameters;
+		// 		obj.createNewTicket = startupParameters.createNewTicket && startupParameters.createNewTicket[0];
+		// 		obj.highPriority = startupParameters.highPriority && startupParameters.highPriority[0];
+		// 		obj.pendingResponse = startupParameters.pendingResponse && startupParameters.pendingResponse[0];
+		// 	}
+        //
+		// 	return obj;
+		// },
 
 		/**
 		 * The component is destroyed by UI5 automatically.
-		 * In this method, the ListSelector and ErrorHandler are destroyed.
 		 * @public
 		 * @override
 		 */
 		destroy: function() {
-			//this.oListSelector.destroy();
 			if (!this.mockData) {
-				this._oErrorHandler.destroy();
+
 			}
 			// call the base component's destroy function
 			UIComponent.prototype.destroy.apply(this, arguments);

@@ -47,9 +47,9 @@ sap.ui.define([
 			// Indicator wheather the ticket list error message is open or not
             this._bListErrorMessageOpen = false;
             this.app = this.component.getAggregation("rootControl");
-            this.appController = this.app.getController();
             this._oResourceBundle = this.component.getModel("i18n").getResourceBundle();
             this._sErrorText = this._oResourceBundle.getText("errorText");
+            this.component.startupParams = this.receiveStartupParams();
 
 
             this.setModel(oViewModel, "masterView");
@@ -66,9 +66,7 @@ sap.ui.define([
 				aSearch: []
 			};
 
-			// Make sure, busy indication is showing immediately so there is no
-			// break after the busy indication for loading the view's meta data is
-			// ended (see promise 'oWhenMetadataIsLoaded' in AppController)
+
 			oList.attachEventOnce("updateFinished", function() {
 				// Restore original busy indicator delay for the list
 				oViewModel.setProperty("/delay", iOriginalBusyDelay);
@@ -99,15 +97,15 @@ sap.ui.define([
             var email = sap.ushell.Container.getUser().getEmail();
             var url =UtilityHandler.getHost()+"/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" +  email + "' or ReporterEmail eq '" + email
                 + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
-            $.ajax({
-                method: "GET",
+
+            this.getHttpRequest({
                 url: url,
                 success: function(result) {
                     if(result && result.forEach){
                         result.forEach(function(oServiceRequest) {
                             if(oServiceRequest.ServiceRequestDescription.length>0){
                                 oServiceRequest.ServiceRequestDescription.forEach(function(description) {
-                                	// set description created on date formate
+                                    // set description created on date formate
                                     description.CreatedOn = new Date(parseInt(description.CreatedOn.substring(description.CreatedOn.indexOf("(") + 1, description.CreatedOn.indexOf(")"))));
                                 });
                             }
@@ -121,8 +119,8 @@ sap.ui.define([
                             firstListitem: oItem
                         });
                     }else{
-                    	// In case empty data
-					}
+                        // In case empty data
+                    }
                 }.bind(this),
                 error: function(jqXHR) {
                     if (jqXHR.status === 404  || (jqXHR.status === 404 && jqXHR.responseText.indexOf("Cannot POST") === 0)) {
@@ -184,7 +182,7 @@ sap.ui.define([
             } else {
             	// In case NOT mock data
                 this.app.setBusy(true);
-                var model = this.getOwnerComponent().getListModel(model);
+                var model = this.getOwnerComponent().getModel("listModel");
                 this.getServiceRequestListBackend(model, function(){
                     this.app.setBusy(false);
                 }.bind(this));
@@ -235,7 +233,7 @@ sap.ui.define([
          */
         onServiceCategorySelectCreateFragment: function() {
             var createServiceSelect = sap.ui.getCore().byId("createServiceCategory");
-            this.appController.getIncidentCategoryList({
+            this.getIncidentCategoryList({
                 parentObject:createServiceSelect.getSelectedItem().data("parentObject"),
                 typeCode: createServiceSelect.getSelectedItem().data("typeCode"),
                 incidentCategoryControl: sap.ui.getCore().byId("createIncidentCategory"),
@@ -429,7 +427,7 @@ sap.ui.define([
          * @private
          */
         _initMetaData:function(oServiceRequestModel){
-            var serviceRequestServicePriorityPromise = this.appController.getServiceRequestServicePriorityCodePromise();
+            var serviceRequestServicePriorityPromise = this.getServiceRequestServicePriorityCodePromise();
             serviceRequestServicePriorityPromise.then(function(oData){
                 if(oData && oData.error){
                     UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -442,7 +440,7 @@ sap.ui.define([
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 
-			var serviceCategoryPromise = this.appController.getServiceCategoryPromise();
+			var serviceCategoryPromise = this.getServiceCategoryPromise();
             serviceCategoryPromise.then(function(oData){
                 if(oData && oData.error){
                     UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -455,7 +453,7 @@ sap.ui.define([
                 UtilityHandler.onErrorDataReadWrap(oError);
             }.bind(this));
 
-            var productionPromise = this.appController.getProductCollectionPromise();
+            var productionPromise = this.getProductCollectionPromise();
             productionPromise.then(function(oData){
                 if(oData && oData.error){
                     UtilityHandler.raiseErrorMessageWrap(oData.error);
@@ -510,7 +508,7 @@ sap.ui.define([
 				var mockModelData = this.oDialog.getModel("ServiceRequest").getData(),
 					parentObject = mockModelData.ServiceIssueCategoryCatalogueCategoryCollection[0].ParentObjectID;
 				incidentModel = mockModelData.IncidentModel;
-                this.appController.initIncidentModel(incidentModel[parentObject], incidentCategoryControl, incidentModel);
+                this.initIncidentModel(incidentModel[parentObject], incidentCategoryControl, incidentModel);
 			} else {
                 var selectedData,ParentObjectID,TypeCode;
 			    if(oEvent){
@@ -522,9 +520,9 @@ sap.ui.define([
                 TypeCode = selectedData.typeCode;
 
                 this.utilityHandler.oModelRead(serviceRequestModel,'/getIncidentCategory', {
-                    filters: this.getOwnerComponent().createIncidentCategoryFilters(ParentObjectID, TypeCode),
+                    filters: this.createIncidentCategoryFilters(ParentObjectID, TypeCode),
                     success: function(oData){
-                        this.appController.initIncidentModel(oData, incidentCategoryControl, incidentModel);
+                        this.initIncidentModel(oData, incidentCategoryControl, incidentModel);
                     }.bind(this),
                     error: this.onIncidentFailed.bind(this)
                 });
@@ -714,19 +712,17 @@ sap.ui.define([
 			if (!this.mockData) {
 				var model = view.getModel();
 				var url = UtilityHandler.getHost()+'/postServiceRequests';
-				jQuery.ajax({
-					url: url,
-					method: "POST",
-					contentType: "application/json",
-					data: JSON.stringify(data),
-					success: this.setTicketDescription.bind(this),
-					error: function(jqXHR) {
+				this.postHttpRequest({
+                    url: url,
+                    data: data,
+                    success: this.setTicketDescription.bind(this),
+                    error: function(jqXHR) {
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
                         var error = errorMessage?errorMessage:'The Ticket could not be created.';
-						MessageBox.error(error);
-						this.oDialog.setBusy(false);
-					}.bind(this)
-				});
+                        MessageBox.error(error);
+                        this.oDialog.setBusy(false);
+                    }.bind(this)
+                });
 			} else {
 				this.setTicketDescription(mockData);
 			}
@@ -755,26 +751,25 @@ sap.ui.define([
 					var baseID = result.ObjectID;
 					var url = UtilityHandler.getHost()+"/postServiceRequestDescription",
 					text = sap.ui.getCore().byId("createDescription").getValue();
-				jQuery.ajax({
-					url: url,
-					method: "POST",
-					contentType: "application/json",
-					data: JSON.stringify({
+
+                this.postHttpRequest({
+                    url: url,
+                    data: {
                         baseID: baseID,
                         AuthorUUID: authorUUID,
-						Text: text
-					}),
-					success: function() {
-						this.uploadAttachment(result);
-					}.bind(this),
-					error: function(jqXHR) {
+                        Text: text
+                    },
+                    success: function() {
+                        this.uploadAttachment(result);
+                    }.bind(this),
+                    error: function(jqXHR) {
                         var error = "The service request was created successfully, but a description could not be set";
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
                         error = errorMessage? error + ":" + errorMessage:error;
-						MessageBox.error(error);
-						this.oDialog.setBusy(false);
-					}
-				});
+                        MessageBox.error(error);
+                        this.oDialog.setBusy(false);
+                    }
+                });
 			} else {
 				var serviceData = result.ServiceRequestDescription;
 				var user = sap.ushell.Container.getUser();
@@ -816,20 +811,18 @@ sap.ui.define([
                     baseID: result.ObjectID
 				};
                 var url = UtilityHandler.getHost()+'/postServiceRequestAttachment';
-				jQuery.ajax({
-					url: url,
-					method: "POST",
-					contentType: "application/json",
-					data: JSON.stringify(dataMock),
-					success: this.finishCreateTicket.bind(this),
-					error: function(jqXHR) {
+                this.postHttpRequest({
+                    url: url,
+                    data: dataMock,
+                    success: this.finishCreateTicket.bind(this),
+                    error: function(jqXHR) {
                         var error = 'The service request was created successfully, but the attachment could not be uploaded';
                         var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
                         var error = errorMessage?errorMessage:error;
-						MessageBox.error(error);
-						this.oDialog.setBusy(false);
-					}
-				});
+                        MessageBox.error(error);
+                        this.oDialog.setBusy(false);
+                    }
+                });
 			} else {
 				var data = {
 					Name: this.fileToUpload.name,
@@ -874,7 +867,7 @@ sap.ui.define([
             oListView.setBusy(true);
             var model = this.getModel();
             this._oList.removeSelections();
-            this.getServiceRequestListBackend(this.getOwnerComponent().getListModel(), function(){
+            this.getServiceRequestListBackend(this.getOwnerComponent().getModel("listModel"), function(){
                 oListView.setBusy(false);
 			}.bind(this));
             model.refresh();

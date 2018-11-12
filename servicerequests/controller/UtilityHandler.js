@@ -208,6 +208,48 @@ sap.ui.define([
     };
 
     /**
+     * Utility method of Posting AJAX request
+     * @param {Object} oSetting: request setting
+     *       ----{String} url: url of request
+     *       ----{String} method: ajax method type, default is "POST"
+     *       ----{String} data: url of request
+     *       ----{function} success: success call back method
+     *       ----{function} error: error call back method			 *
+     *       ----{function} complete: complete call back method
+     */
+    UtilityHandler.postHttpRequest = function(oSetting){
+        jQuery.ajax({
+            url: oSetting.url,
+            method: oSetting.method? oSetting.method: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(oSetting.data),
+            success: oSetting.success,
+            error: oSetting.error,
+            complete: oSetting.complete
+        });
+    };
+
+    /**
+     * Utility method of Posting AJAX request
+     * @param {Object} oSetting: request setting
+     *       ----{String} url: url of request
+     *       ----{function} success: success call back method
+     *       ----{function} error: error call back method			 *
+     *       ----{function} complete: complete call back method
+     */
+    UtilityHandler.getHttpRequest = function(oSetting){
+        jQuery.ajax({
+            url: oSetting.url,
+            method: "GET",
+            contentType: "application/json",
+            data: JSON.stringify(oSetting.data),
+            success: oSetting.success,
+            error: oSetting.error,
+            complete: oSetting.complete
+        });
+    };
+
+    /**
      * Wrapper method when exception happens in post/get data from back-end
      * @param {object} jqXHR
      */
