@@ -500,7 +500,8 @@ sap.ui.define([
 		    var that = this;
 			var serviceRequestModel = this.oDialog.getModel("ServiceRequest");
 			var incidentModel = this.oDialog.getModel("IncidentModel");
-			var incidentCategoryControl = sap.ui.getCore().byId("createIncidentCategory");
+			var createCategoryControl = sap.ui.getCore().byId("createServiceCategory");
+            var incidentCategoryControl = sap.ui.getCore().byId("createIncidentCategory");
 			if (this.getOwnerComponent().mockData) {
 
 				var mockModelData = this.oDialog.getModel("ServiceRequest").getData(),
@@ -512,7 +513,7 @@ sap.ui.define([
 			    if(oEvent){
                     selectedData = oEvent.oSource.getSelectedItem().data();
                 }else{
-                    selectedData = incidentCategoryControl.getSelectedItem().data();
+                    selectedData = createCategoryControl.getSelectedItem().data();
                 }
                 ParentObjectID = selectedData.parentObject;
                 TypeCode = selectedData.typeCode;
@@ -521,7 +522,7 @@ sap.ui.define([
                     filters: this.getOwnerComponent().createIncidentCategoryFilters(ParentObjectID, TypeCode),
                     success: function(oData){
                         this.appController.initIncidentModel(oData, incidentCategoryControl, incidentModel);
-                    },
+                    }.bind(this),
                     error: this.onIncidentFailed.bind(this)
                 });
 			}
