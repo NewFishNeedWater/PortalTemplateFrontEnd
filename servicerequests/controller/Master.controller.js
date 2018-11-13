@@ -379,44 +379,60 @@ sap.ui.define([
 		onAdd: function(context) {
             var sUserEmail = sap.ushell.Container.getUser().getEmail();
 
-            if(this.contactID){
-                if (!this.oDialog) {
-                    var _self = this;
-                    this.oDialog = sap.ui.xmlfragment("ServiceRequests.fragment.Create", this);
-                    var dialogModel = new JSONModel();
-                    dialogModel.setProperty("createEnabled", false);
-                    dialogModel.setProperty("titleInput", '');
-                    dialogModel.setProperty("descriptionInput", '');
-                    var incidentModel = new JSONModel({results: []});
-                    this.oDialog.setModel(incidentModel, "IncidentModel");
-                    var isMock = this.getOwnerComponent().mockData;
-                    if (isMock) {
-                        var mockModel = new JSONModel(jQuery.sap.getModulePath("ServiceRequests") + "/mock/serviceMockData.json");
-                        mockModel.attachRequestCompleted(function() {
-                            _self.oDialog.setModel(new JSONModel(this.getData().ServiceRequest), "ServiceRequest");
-                            _self.oDialog.open();
-                        });
-                    } else {
-                       // this.oDialog.setModel(this.getOwnerComponent().getModel(), "ServiceRequest");
-                        var oCreateModel = {};
-                        this.oDialog.setModel(new JSONModel(oCreateModel), "ServiceRequest");
-                        this._initMetaData(oCreateModel);
-                    }
-                    this.oDialog.setModel(dialogModel);
-                    this.oDialog.attachAfterClose(function() {
-                        this.oDialog.destroy();
-                        this.oDialog = null;
-                    }.bind(this));
-                    this.getView().addDependent(this.oDialog);
-                    this.oDialog.attachAfterOpen(function() {
-                        this.onDialogOpen(context);
-                    }.bind(this));
-                    if (!isMock) {
-                        this.oDialog.open();
+
+            var fnSuccess = function(result){
+                if(!result){
+                    MessageToast.show("You cannot view or create tickets because your email " + sUserEmail + " is not assigned to a contact in the C4C tenant",{Duration:5000});
+                }else{
+
+                    if (!this.oDialog) {
+                        var _self = this;
+                        this.oDialog = sap.ui.xmlfragment("ServiceRequests.fragment.Create", this);
+                        var dialogModel = new JSONModel();
+                        dialogModel.setProperty("createEnabled", false);
+                        dialogModel.setProperty("titleInput", '');
+                        dialogModel.setProperty("descriptionInput", '');
+                        var incidentModel = new JSONModel({results: []});
+                        this.oDialog.setModel(incidentModel, "IncidentModel");
+                        var isMock = this.getOwnerComponent().mockData;
+                        if (isMock) {
+                            var mockModel = new JSONModel(jQuery.sap.getModulePath("ServiceRequests") + "/mock/serviceMockData.json");
+                            mockModel.attachRequestCompleted(function() {
+                                _self.oDialog.setModel(new JSONModel(this.getData().ServiceRequest), "ServiceRequest");
+                                _self.oDialog.open();
+                            });
+                        } else {
+                            var oCreateModel = {};
+                            this.oDialog.setModel(new JSONModel(oCreateModel), "ServiceRequest");
+                            this._initMetaData(oCreateModel);
+                            // this.oDialog.setModel(this.getOwnerComponent().getModel(), "ServiceRequest");
+                        }
+
+                        this.oDialog.setModel(dialogModel);
+                        this.oDialog.attachAfterClose(function() {
+                            this.oDialog.destroy();
+                            this.oDialog = null;
+                        }.bind(this));
+                        this.getView().addDependent(this.oDialog);
+                        this.oDialog.attachAfterOpen(function() {
+                            this.onDialogOpen(context);
+                        }.bind(this));
+                        if (!isMock) {
+                            this.oDialog.open();
+                        }
                     }
                 }
+            }.bind(this);
+            var fnError = function(jqXHR){
+                MessageToast.show("Retrieve contact by Email error , Email: " + sUserEmail ,{Duration:5000});
+            };
+
+            if(this.contactID){
+                //in case when user create from service request screen , we don't need to
+                fnSuccess({dummyObject:"dummy"});
             }else{
-                MessageToast.show("You cannot view or create tickets because your email " + sUserEmail + " is not assigned to a contact in the C4C tenant",{Duration:5000});
+                //in case when user create ticket from dashboad
+                UtilityHandler.getC4CContact(fnSuccess,fnError,sUserEmail);
             }
 
 		},
