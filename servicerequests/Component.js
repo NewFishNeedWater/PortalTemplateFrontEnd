@@ -45,7 +45,7 @@ sap.ui.define([
 		init: function() {
 
 		    //TODO remove it when deploy to SCP
-            sap.ushell.Container = {
+           /* sap.ushell.Container = {
                 getUser: function () {
 
                     return {
@@ -55,7 +55,7 @@ sap.ui.define([
                         }
                     };
                 },
-            };
+            };*/
 
             // set list model for contain the service ticket list data
             var model = new JSONModel();
