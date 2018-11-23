@@ -94,7 +94,7 @@ sap.ui.define([
          * @param fnComplete
          */
         getServiceRequestListBackend: function (model, fnComplete) {
-            var email = sap.ushell.Container.getUser().getEmail() + "kk";
+            var email = sap.ushell.Container.getUser().getEmail();
             var url = UtilityHandler.getHost() + "/getServiceRequests?$skip=0&$top=20&$orderby=CreationDateTime desc&$filter=(ReporterEmail eq '" + email + "' or ReporterEmail eq '" + email
                 + "') and (ServiceRequestUserLifeCycleStatusCodeText ne 'Completed' or ServiceRequestUserLifeCycleStatusCodeText ne 'Completed')&$expand=ServiceRequestDescription,ServiceRequestAttachmentFolder";
 
