@@ -4,8 +4,10 @@ sap.ui.define([
 	"sap/ui/model/odata/v2/ODataModel",
 	"sap/ui/model/json/JSONModel",
 	"ServiceRequests/model/models",
-    "ServiceRequests/controller/UtilityHandler"
-], function(UIComponent, Device, ODataModel, JSONModel, models, UtilityHandler ) {
+    "ServiceRequests/controller/UtilityHandler",
+    "sap/m/MessageBox",
+    "sap/m/MessageToast"
+], function(UIComponent, Device, ODataModel, JSONModel, models, UtilityHandler , MessageBox , MessageToast) {
 	"use strict";
 
 	return UIComponent.extend("ServiceRequests.Component", {
@@ -57,6 +59,9 @@ sap.ui.define([
                 },
             };*/
 
+            //get C4C Contact via email at the very beginning
+			this._getC4CContact();
+
             // set list model for contain the service ticket list data
             var model = new JSONModel();
             this.setModel(model, "listModel");
@@ -70,20 +75,6 @@ sap.ui.define([
 			// create the views based on the url/hash
 			this.getRouter().initialize();
 		},
-
-		// receiveStartupParams: function() {
-		// 	var obj = {},
-		// 		oComponentData = this.getComponentData && this.getComponentData();
-        //
-		// 	if (oComponentData && oComponentData.startupParameters) {
-		// 		var startupParameters = oComponentData.startupParameters;
-		// 		obj.createNewTicket = startupParameters.createNewTicket && startupParameters.createNewTicket[0];
-		// 		obj.highPriority = startupParameters.highPriority && startupParameters.highPriority[0];
-		// 		obj.pendingResponse = startupParameters.pendingResponse && startupParameters.pendingResponse[0];
-		// 	}
-        //
-		// 	return obj;
-		// },
 
 		/**
 		 * The component is destroyed by UI5 automatically.
@@ -118,11 +109,38 @@ sap.ui.define([
 			}
 			return this._sContentDensityClass;
 		},
-
 		onConfigChange: function(oEvent) {
 			var settings = this.getMetadata().getManifest()["sap.cloud.portal"].settings;
 			this.getAggregation("rootControl").$().css("height", settings.widgetHeight.value + "px");
-		}
+		},
+        /**
+		 *
+         * @private get C4C contact at the very beginning
+         */
+        _getC4CContact : function(){
+            var sUserEmail = sap.ushell.Container.getUser().getEmail();
+            var url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + sUserEmail;
+            $.ajax({
+                async:false,
+                method: "GET",
+                url: url,
+                success: function (result) {
+                    if(result){
+                    	// if we can get contact ID & contact UUID from back end , set it as global variable.
+                        this.contactID = result[0].ContactID;
+                        this.contactUUID = result[0].UUID;
+                    }else{
+                        MessageToast.show("You cannot view or create tickets because your email " + sUserEmail + " is not assigned to a contact in the C4C tenant",{Duration:5000});
+                    }
+                }.bind(this),
+                error: function(jqXHR){
+                    var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+                    var error = errorMessage?errorMessage:'Can not retrieve users email:' + sUserEmail;
+                    MessageBox.error(error);
+				}
+            });
+
+        },
 	});
 
 });

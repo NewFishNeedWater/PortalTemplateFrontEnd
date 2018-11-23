@@ -1,7 +1,7 @@
 sap.ui.define([
     "sap/ui/base/Object",
     "sap/ui/model/FilterOperator",
-    "sap/m/MessageBox",
+    "sap/m/MessageBox"
 ], function (UI5Object, FilterOperator, MessageBox) {
     "use strict";
     /**
@@ -156,12 +156,12 @@ sap.ui.define([
         }
     };
 
-    /**
+   /* /!**
      * Utility Method to get C4C Contact
      * @param fnSuccess
      * @param fnError
      * @param sUserEmail
-     */
+     *!/
     UtilityHandler.getC4CContact = function (fnSuccess, fnError, sUserEmail) {
         var url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + sUserEmail;
         $.ajax({
@@ -170,7 +170,7 @@ sap.ui.define([
             success: fnSuccess,
             error: fnError
         });
-    };
+    };*/
 
 
     /**
