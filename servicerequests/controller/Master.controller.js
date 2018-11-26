@@ -260,7 +260,7 @@ sap.ui.define([
                 if (!this.initialCreateTicketOpened) {
                     var newSiteProperties = window.location.hash.substring(1).split('?')[1];
                     this.onAdd(this.splitData(newSiteProperties));
-                    //this.initialCreateTicketOpened = true;
+                    this.initialCreateTicketOpened = true;
                 }
             }
         },
@@ -674,7 +674,7 @@ sap.ui.define([
                 "ServiceRequestDescription": []
             };
             var data = {
-                ReporterPartyID: this.contactID,
+                ReporterPartyID: this.component.contactID,
                 Name: {
                     content: titleInput.getValue()
                 },
