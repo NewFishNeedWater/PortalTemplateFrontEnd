@@ -8,7 +8,7 @@ sap.ui.define([
      * Utility Class for get/post data from/to back-end server, as well as information/data processing.
      */
 
-    var UtilityHandler = UI5Object.extend("ServiceRequests.controller.UtilityHandler", {
+    var ChatUtilityHandler = UI5Object.extend("Chat.controller.ChatUtilityHandler", {
 
         /**
          * Utility method: Read data from server and render oModel
@@ -20,7 +20,7 @@ sap.ui.define([
          *         ----{array} filters: filter table
          */
         oModelRead: function (oModel, baseURL, oSettings) {
-            var url = UtilityHandler.getHost() + baseURL;
+            var url = ChatUtilityHandler.getHost() + baseURL;
             if (this._checkURLWithCondition(oSettings)) {
                 url = url + "?";
             }
@@ -58,7 +58,7 @@ sap.ui.define([
          *         ----{array} filters: filter table
          */
         getModelReadPromise: function (baseURL, oSettings) {
-            var url = UtilityHandler.getHost() + baseURL;
+            var url = ChatUtilityHandler.getHost() + baseURL;
             if (this._checkURLWithCondition(oSettings)) {
                 url = url + "?";
             }
@@ -127,10 +127,10 @@ sap.ui.define([
      * Utility method to get the HOST URI
      * @returns {string}
      */
-    UtilityHandler.getHost = function () {
+    ChatUtilityHandler.getHost = function () {
         //for local test
         return "http://127.0.0.1:4002/client";
-        //return jQuery.sap.getModulePath("ServiceRequests") + "/destinations/supportportal/client";
+        //return jQuery.sap.getModulePath("Chat") + "/destinations/supportportal/client";
         //return "https://supportportal.cfapps.us10.hana.ondemand.com/client";
     };
 
@@ -139,7 +139,7 @@ sap.ui.define([
      * @param rawValue
      * @returns {Date}
      */
-    UtilityHandler.getDate = function (rawValue) {
+    ChatUtilityHandler.getDate = function (rawValue) {
         if (typeof rawValue === 'string') {
             // In case string type raw date value
             let regex = new RegExp("^\/Date");
@@ -156,21 +156,7 @@ sap.ui.define([
         }
     };
 
-   /* /!**
-     * Utility Method to get C4C Contact
-     * @param fnSuccess
-     * @param fnError
-     * @param sUserEmail
-     *!/
-    UtilityHandler.getC4CContact = function (fnSuccess, fnError, sUserEmail) {
-        var url = UtilityHandler.getHost() + "/getC4CContact?userEmail=" + sUserEmail;
-        $.ajax({
-            method: "GET",
-            url: url,
-            success: fnSuccess,
-            error: fnError
-        });
-    };*/
+
 
 
     /**
@@ -179,7 +165,7 @@ sap.ui.define([
      * @returns {string} error message
      *
      */
-    UtilityHandler.getErrorMessageFromErrorResponse = function (jqXHR) {
+    ChatUtilityHandler.getErrorMessageFromErrorResponse = function (jqXHR) {
         var errorUnion;
         if(jqXHR && jqXHR.responseText){
             if(jqXHR.responseText.getElementsByTagName && jqXHR.responseText.getElementsByTagName("message")) {
@@ -217,7 +203,7 @@ sap.ui.define([
      *       ----{function} error: error call back method			 *
      *       ----{function} complete: complete call back method
      */
-    UtilityHandler.postHttpRequest = function(oSetting){
+    ChatUtilityHandler.postHttpRequest = function(oSetting){
         jQuery.ajax({
             url: oSetting.url,
             method: oSetting.method? oSetting.method: "POST",
@@ -237,7 +223,7 @@ sap.ui.define([
      *       ----{function} error: error call back method			 *
      *       ----{function} complete: complete call back method
      */
-    UtilityHandler.getHttpRequest = function(oSetting){
+    ChatUtilityHandler.getHttpRequest = function(oSetting){
         jQuery.ajax({
             url: oSetting.url,
             method: "GET",
@@ -253,8 +239,8 @@ sap.ui.define([
      * Wrapper method when exception happens in post/get data from back-end
      * @param {object} jqXHR
      */
-    UtilityHandler.onErrorDataReadWrap = function (jqXHR) {
-        var errorMessage = UtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
+    ChatUtilityHandler.onErrorDataReadWrap = function (jqXHR) {
+        var errorMessage = ChatUtilityHandler.getErrorMessageFromErrorResponse(jqXHR);
         if(errorMessage){
             MessageBox.error(errorMessage);
         }
@@ -264,12 +250,12 @@ sap.ui.define([
      * Wrapper method when error message is founded in success returned data from back-end
      * @param {object} oError
      */
-    UtilityHandler.raiseErrorMessageWrap = function(oError){
+    ChatUtilityHandler.raiseErrorMessageWrap = function(oError){
         if(oError.message && oError.message.value){
             MessageBox.error(oError.message.value);
         }
     };
 
-    return UtilityHandler;
+    return ChatUtilityHandler;
 });
 

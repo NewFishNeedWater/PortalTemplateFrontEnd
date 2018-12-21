@@ -45,6 +45,17 @@
 				"action": "Display"
 			},
 			"entityType": "APP"
-		}]
+		},
+			{
+				"title": "{{chat}}",
+				"target": {
+					"semanticObject": "Chat",
+					"action": "Display"
+				},
+				"entityType": "APP"
+			}
+
+		]
+
 	}
 }

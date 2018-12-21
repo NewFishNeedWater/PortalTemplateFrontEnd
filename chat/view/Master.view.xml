@@ -1,0 +1,23 @@
+<mvc:View controllerName="Chat.controller.Master" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+          xmlns:semantic="sap.m.semantic">
+    <semantic:MasterPage id="page" title="{masterView>/title}" showNavButton="false">
+        <semantic:subHeader>
+            <Bar id="headerBar">
+                <contentMiddle>
+                    <SearchField id="searchField" showRefreshButton="{= !${device>/support/touch} }"
+                                 tooltip="{i18n>masterSearchTooltip}" width="100%" search="onSearch"></SearchField>
+                </contentMiddle>
+            </Bar>
+        </semantic:subHeader>
+        <semantic:content>
+            <PullToRefresh id="pullToRefresh" visible="{device>/support/touch}" refresh="onRefresh"/>
+
+        </semantic:content>
+        <semantic:customFooterContent>
+            <Button id="downloadButton" icon="sap-icon://download" enabled="false" press="onDownload"/>
+        </semantic:customFooterContent>
+        <semantic:addAction>
+            <semantic:AddAction id="addButton" enabled="false" press="onAdd"/>
+        </semantic:addAction>
+    </semantic:MasterPage>
+</mvc:View>
