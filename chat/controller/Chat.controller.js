@@ -15,7 +15,7 @@ sap.ui.define([
     "use strict";
     /*global $*/
 
-    return BaseController.extend("Chat.controller.Master", {
+    return BaseController.extend("Chat.controller.Chat", {
 
         formatter: formatter,
 
@@ -31,7 +31,7 @@ sap.ui.define([
         onInit: function () {
             this.component = this.getOwnerComponent();
 
-            this.getRouter().getRoute("master").attachPatternMatched(this._onMasterMatched, this);
+            this.getRouter().getRoute("chat").attachPatternMatched(this._onMasterMatched, this);
             this.getRouter().attachBypassed(this.onBypassed, this);
         },
 

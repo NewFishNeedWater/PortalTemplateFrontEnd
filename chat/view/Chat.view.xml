@@ -1,4 +1,4 @@
-<mvc:View controllerName="Chat.controller.Master" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
+<mvc:View controllerName="Chat.controller.Chat" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
           xmlns:semantic="sap.m.semantic">
     <semantic:MasterPage id="page" title="{masterView>/title}" showNavButton="false">
         <semantic:subHeader>

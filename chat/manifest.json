@@ -73,49 +73,31 @@
 				"routerClass": "sap.m.routing.Router",
 				"viewType": "XML",
 				"viewPath": "Chat.view",
-				"controlId": "idAppControl",
-				"controlAggregation": "detailPages",
-				"bypassed": {
-					"target": [
-						"master",
-						"notFound"
-					]
-				},
+				"controlId": "chatApp",
+				"controlAggregation": "pages",
+//				"bypassed": {
+//					"target": [
+//						"master",
+//						"notFound"
+//					]
+//				},
 				"async": true
 			},
 			"routes": [
 				{
 					"pattern": "",
-					"name": "master",
+					"name": "chat",
 					"target": [
-						"object",
-						"master"
+						"chatPage"
 					]
 				}
 			],
 			"targets": {
-				"master": {
-					"viewName": "Master",
+				"chatPage": {
+					"viewName": "Chat",
 					"viewLevel": 1,
-					"viewId": "master",
-					"controlAggregation": "masterPages"
-				},
-				"object": {
-					"viewName": "Detail",
-					"viewId": "detail",
-					"viewLevel": 2
-				},
-				"detailObjectNotFound": {
-					"viewName": "DetailObjectNotFound",
-					"viewId": "detailObjectNotFound"
-				},
-				"detailNoObjectsAvailable": {
-					"viewName": "DetailNoObjectsAvailable",
-					"viewId": "detailNoObjectsAvailable"
-				},
-				"notFound": {
-					"viewName": "NotFound",
-					"viewId": "notFound"
+					"viewId": "chat",
+					"controlAggregation": "chatPages"
 				}
 			}
 		},

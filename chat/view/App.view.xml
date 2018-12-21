@@ -5,7 +5,7 @@
 		busy="{appView>/busy}"
 		busyIndicatorDelay="{appView>/delay}"
 		xmlns="sap.m">
-	<App id="app">
+	<App id="chatApp">
 		<pages>
 		</pages>
 	</App>
