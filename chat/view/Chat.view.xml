@@ -1,23 +1,40 @@
-<mvc:View controllerName="Chat.controller.Chat" xmlns:mvc="sap.ui.core.mvc" xmlns="sap.m"
-          xmlns:semantic="sap.m.semantic">
-    <semantic:MasterPage id="page" title="{masterView>/title}" showNavButton="false">
-        <semantic:subHeader>
-            <Bar id="headerBar">
-                <contentMiddle>
-                    <SearchField id="searchField" showRefreshButton="{= !${device>/support/touch} }"
-                                 tooltip="{i18n>masterSearchTooltip}" width="100%" search="onSearch"></SearchField>
-                </contentMiddle>
-            </Bar>
-        </semantic:subHeader>
-        <semantic:content>
-            <PullToRefresh id="pullToRefresh" visible="{device>/support/touch}" refresh="onRefresh"/>
+<mvc:View controllerName="Chat.controller.Chat"   xmlns:mvc="sap.ui.core.mvc"
+          xmlns:layout="sap.ui.layout" xmlns="sap.uxap" xmlns:f="sap.ui.layout.form" xmlns:m="sap.m" xmlns:core="sap.ui.core">
 
-        </semantic:content>
-        <semantic:customFooterContent>
-            <Button id="downloadButton" icon="sap-icon://download" enabled="false" press="onDownload"/>
-        </semantic:customFooterContent>
-        <semantic:addAction>
-            <semantic:AddAction id="addButton" enabled="false" press="onAdd"/>
-        </semantic:addAction>
-    </semantic:MasterPage>
+    <ObjectPageLayout enableLazyLoading="false" alwaysShowContentHeader="true" showTitleInHeaderContent="false" showHeaderContent="true">
+        <headerTitle>
+            <ObjectPageHeader objectTitle="Chat Page"/>
+        </headerTitle>
+        <headerContent>
+
+        </headerContent>
+
+
+        <sections>
+
+            <ObjectPageSection >
+                <subSections>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <m:List
+                                    headerText="I want to start a chat for:" >
+                                <m:ActionListItem text="Query Information" />
+                                <m:ActionListItem text="Report a incident" />
+                                <m:ActionListItem text="Contact Service Chatbot" />
+                            </m:List>
+                        </blocks>
+                    </ObjectPageSubSection>
+                    <ObjectPageSubSection>
+                        <blocks>
+                            <!--Section for chat history-->
+
+
+                        </blocks>
+                    </ObjectPageSubSection>
+                </subSections>
+            </ObjectPageSection>
+
+
+        </sections>
+    </ObjectPageLayout>
 </mvc:View>

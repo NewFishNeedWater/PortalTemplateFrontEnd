@@ -75,29 +75,18 @@
 				"viewPath": "Chat.view",
 				"controlId": "chatApp",
 				"controlAggregation": "pages",
-//				"bypassed": {
-//					"target": [
-//						"master",
-//						"notFound"
-//					]
-//				},
 				"async": true
 			},
 			"routes": [
 				{
 					"pattern": "",
 					"name": "chat",
-					"target": [
-						"chatPage"
-					]
+					"target": "chatPage"
 				}
 			],
 			"targets": {
 				"chatPage": {
-					"viewName": "Chat",
-					"viewLevel": 1,
-					"viewId": "chat",
-					"controlAggregation": "chatPages"
+					"viewName": "Chat"
 				}
 			}
 		},
