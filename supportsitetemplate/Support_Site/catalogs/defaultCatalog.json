@@ -26,10 +26,6 @@
 			},
 			{
 				"namespace": "",
-				"id": "hcp://supportsitetemplate/Support_Site/applications/Chat.json"
-			},
-			{
-				"namespace": "",
 				"id": "hcp://supportsitetemplate/Support_Site/applications/ServiceRequests.json"
 			},
 			{
